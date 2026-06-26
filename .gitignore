@@ -1,0 +1,21 @@
+# Android
+.gradle/
+.idea/
+build/
+captures/
+local.properties
+*.iml
+
+# Kotlin
+.kotlin/
+
+# Node.js
+node_modules/
+.env
+
+# Logs
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
