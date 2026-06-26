@@ -1,6 +1,6 @@
-# Smart Resource Allocation System
+# Smart Resource Allocation System | Kotlin, Node.js, MongoDB
 
-A full-stack resource allocation platform developed for efficient management of shared resources and reservation requests.
+Developed a full-stack resource allocation platform with role-based access, resource management, reservation workflows, booking window tracking, waitlist support, and analytics.
 
 ## Tech Stack
 
