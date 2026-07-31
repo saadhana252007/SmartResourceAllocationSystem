@@ -350,33 +350,28 @@ const forgotPassword = async (req, res) => {
 
         await user.save();
 
-        await transporter.sendMail({
+console.log("Skipping email sending for testing");
 
-            from: process.env.EMAIL_USER,
+// Temporarily disable email sending
+// await transporter.sendMail({
+//     from: process.env.EMAIL_USER,
+//     to: email,
+//     subject: "Password Reset OTP",
+//     html: `
+//         <h2>Smart Resource Allocation System</h2>
+//         <p>Your OTP for password reset is:</p>
+//         <h1>${otp}</h1>
+//         <p>This OTP is valid for only 5 minutes.</p>
+//     `
+// });
 
-            to: email,
+return res.status(200).json({
 
-            subject: "Password Reset OTP",
+    success: true,
 
-            html: `
-                <h2>Smart Resource Allocation System</h2>
+    message: "OTP sent successfully"
 
-                <p>Your OTP for password reset is:</p>
-
-                <h1>${otp}</h1>
-
-                <p>This OTP is valid for only 5 minutes.</p>
-            `
-
-        });
-
-        res.status(200).json({
-
-            success: true,
-
-            message: "OTP sent successfully"
-
-        });
+});
 
     } catch(error){
 
