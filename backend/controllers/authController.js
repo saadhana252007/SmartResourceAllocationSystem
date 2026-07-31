@@ -391,15 +391,15 @@ return res.status(200).json({
 
 });
 
-    } catch(error){
+    } catch (error) {
 
-    console.error(error);
+    console.error("Forgot Password Error:", error);
 
     return res.status(500).json({
 
         success: false,
 
-        message: "Internal server error"
+        message: error.message
 
     });
 
