@@ -322,29 +322,66 @@ const forgotPassword = async (req, res) => {
 
     try {
 
-    console.log("Sending email...");
+        const { email } = req.body;
 
-    const info = await transporter.sendMail({
+        const user = await User.findOne({ email });
 
-        from: process.env.EMAIL_USER,
+        if (!user) {
 
-        to: email,
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
 
-        subject: "Password Reset OTP",
+        }
 
-        text: `Your OTP is ${otp}`
+        const otp = Math.floor(
+            100000 + Math.random() * 900000
+        ).toString();
 
-    });
+        user.resetOTP = otp;
+        user.resetOTPExpiry = Date.now() + 5 * 60 * 1000;
 
-    console.log("Email sent successfully:", info.messageId);
+        await user.save();
 
-} catch (err) {
+        console.log("Sending email...");
 
-    console.error("SMTP ERROR:", err);
+        const info = await transporter.sendMail({
 
-    throw err;
+            from: process.env.EMAIL_USER,
 
-}
+            to: email,
+
+            subject: "Password Reset OTP",
+
+            text: `Your OTP is ${otp}`
+
+        });
+
+        console.log("Email sent:", info);
+
+        return res.status(200).json({
+
+            success: true,
+
+            message: "OTP sent successfully"
+
+        });
+
+    } catch (err) {
+
+        console.error("SMTP ERROR:", err);
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: err.message
+
+        });
+
+    }
+
 };
 const verifyOTP = async (req, res) => {
 
