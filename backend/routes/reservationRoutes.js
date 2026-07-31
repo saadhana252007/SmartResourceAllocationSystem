@@ -26,7 +26,10 @@ router.put(
     cancelReservation
 );
 
-router.get("/", getAllReservations);
+router.get(
+    "/",
+    protect,
+    getAllReservations);
 
 router.get(
     "/my-reservations",

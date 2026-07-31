@@ -4,7 +4,8 @@ const resourceSchema = new mongoose.Schema(
 {
     name: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
 
     category: {
@@ -25,11 +26,13 @@ const resourceSchema = new mongoose.Schema(
     },
 
     description: {
-        type: String
+        type: String,
+        trim: true
     },
 
     location: {
-        type: String
+        type: String,
+        trim: true
     },
 
     resourceType: {
@@ -39,22 +42,41 @@ const resourceSchema = new mongoose.Schema(
     },
 
     capacity: {
-        type: Number,
-        default: 0
+    type: Number,
+    default: 0,
+    min: 0
+},
+
+availableUnits: {
+    type: Number,
+    default: 0,
+    min: 0
+},
+
+bookingOpenBeforeHours: {
+    type: Number,
+    default: 72,
+    min: 0
+},
+
+bookingWindowDurationHours: {
+    type: Number,
+    default: 24,
+    min: 1
+},
+
+    workingStartTime: {
+        type: String,
+        required: true,
+        default: "08:00",
+        match: /^([01]\d|2[0-3]):([0-5]\d)$/
     },
 
-    availableUnits: {
-        type: Number,
-        default: 0
-    },
-    bookingOpenBeforeHours: {
-      type: Number,
-      default: 72
-    },
-
-    bookingWindowDurationHours: {
-      type: Number,
-      default: 24
+    workingEndTime: {
+        type: String,
+        required: true,
+        default: "20:00",
+        match: /^([01]\d|2[0-3]):([0-5]\d)$/
     },
 
     createdBy: {
@@ -67,5 +89,16 @@ const resourceSchema = new mongoose.Schema(
     timestamps: true
 }
 );
+resourceSchema.index({
+
+    category: 1
+
+});
+
+resourceSchema.index({
+
+    createdBy: 1
+
+});
 
 module.exports = mongoose.model("Resource", resourceSchema);

@@ -7,7 +7,13 @@ const createBookingWindow = async (req, res) => {
         const bookingWindow =
             await BookingWindow.create(req.body);
 
-        res.status(201).json(bookingWindow);
+        return res.status(201).json({
+
+    success: true,
+
+    bookingWindow
+
+});
 
     } catch (error) {
 
@@ -26,17 +32,27 @@ const getAllBookingWindows = async (req, res) => {
         const bookingWindows =
             await BookingWindow.find();
 
-        res.status(200).json(
-            bookingWindows
-        );
+        return res.status(200).json({
+
+    success: true,
+
+    bookingWindows
+
+});
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+    console.error(error);
 
-    }
+    return res.status(500).json({
+
+        success: false,
+
+        message: "Internal server error"
+
+    });
+
+}
 
 };
 

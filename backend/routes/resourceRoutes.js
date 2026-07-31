@@ -14,7 +14,8 @@ const {
     getMyResources,
     updateResource,
     deleteResource,
-    getResourceById
+    getResourceById,
+    getMyResourcesByCategory
 } = require("../controllers/resourceController");
 
 router.post(
@@ -33,6 +34,17 @@ router.get(
     adminOnly,
     getMyResources
 );
+router.get(
+
+    "/my-resources/category/:category",
+
+    protect,
+
+    adminOnly,
+
+    getMyResourcesByCategory
+
+);
 router.put(
     "/:id",
     protect,
@@ -50,6 +62,8 @@ router.get("/category/:category", getResourcesByCategory);
 
 router.get(
     "/:id",
+    protect,
+    adminOnly,
     getResourceById
 );
 

@@ -1,23 +1,205 @@
 const Reservation = require("../models/Reservation");
 
+const Resource = require("../models/Resource");
+
 const {promoteWaitlistedReservations} = require("../services/allocationService");
 
 const createReservation = async (req, res) => {
 
     try {
 
+        const resource = await Resource.findById(
+            req.body.requestedResource
+        );
+
+        if (!resource) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Resource not found"
+
+            });
+
+        }
+        if (
+    resource.resourceType === "QUANTITY_BASED" &&
+    req.body.allocationPreference === "ALTERNATE_RESOURCE"
+) {
+    return res.status(400).json({
+        success: false,
+        message:
+            "Alternate Resource is not allowed for quantity-based resources."
+    });
+}
+
+        const [year, month, day] =
+    req.body.date.split("-").map(Number);
+
+const bookingDate = new Date(
+    year,
+    month - 1,
+    day,
+    0,
+    1,
+    0,
+    0
+);
+
+        const openTime = new Date(bookingDate);
+
+        openTime.setHours(
+            openTime.getHours() -
+            resource.bookingOpenBeforeHours
+        );
+
+        const closeTime = new Date(openTime);
+
+        closeTime.setHours(
+            closeTime.getHours() +
+            resource.bookingWindowDurationHours
+        );
+
+        const now = new Date();
+
+        if (now < openTime) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Booking window has not opened yet."
+
+            });
+
+        }
+
+        if (now > closeTime) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Booking window has already closed."
+
+            });
+
+        }
+
+        const startParts =
+            req.body.startTime.split(":");
+
+        const startMinutes =
+            parseInt(startParts[0],10) * 60 +
+            parseInt(startParts[1],10);
+
+        const endMinutes =
+            startMinutes +
+            (req.body.durationHours * 60);
+
+
+        const openingParts =
+            resource.workingStartTime.split(":");
+
+        const openingMinutes =
+            parseInt(openingParts[0],10) * 60 +
+            parseInt(openingParts[1],10);
+
+        if (startMinutes < openingMinutes) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                `Resource opens at ${resource.workingStartTime}. Please choose a later start time.`
+
+            });
+
+        }
+
+
+        const closingParts =
+            resource.workingEndTime.split(":");
+
+        const closingMinutes =
+            parseInt(closingParts[0],10) * 60 +
+            parseInt(closingParts[1],10);
+
+        if (endMinutes > closingMinutes) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                `Resource closes at ${resource.workingEndTime}. Please choose a shorter duration or earlier start time.`
+
+            });
+
+        }
+
+        if (
+
+            resource.resourceType ===
+            "CAPACITY_BASED" &&
+
+            req.body.participantCount >
+            resource.capacity
+
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                `Participant count cannot exceed resource capacity (${resource.capacity}).`
+
+            });
+
+        }
+
+
+        if (
+
+            resource.resourceType ===
+            "QUANTITY_BASED" &&
+
+            req.body.quantityRequired >
+            resource.availableUnits
+
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                `Only ${resource.availableUnits} units are available.`
+
+            });
+
+        }
+
         const reservation =
             await Reservation.create({
+
                 ...req.body,
-                user: req.user.id
-        });
-        res.status(201).json(reservation);
 
-    } catch (error) {
+                date: bookingDate,
 
-        res.status(500).json({
-            message: error.message
-        });
+                user: req.user.id,
+
+                resourceCategory:
+                    resource.category
+
+            });
+
+        res.status(201).json({
+            success: true,
+            reservation
+    });
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+return res.status(500).json({
+    success: false,
+    message: "Internal server error"
+});
 
     }
 
@@ -32,13 +214,18 @@ const getAllReservations = async (req, res) => {
             .populate("requestedResource")
             .populate("allocatedResource");
 
-        res.status(200).json(reservations);
+        res.status(200).json({
+            success: true,
+            reservations});
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+        console.error(error);
+
+return res.status(500).json({
+    success: false,
+    message: "Internal server error"
+});
 
     }
 
@@ -58,21 +245,29 @@ const getMyReservations = async (
 
             })
 
+            .populate(
+                "user",
+                "name email role"
+            )
             .populate("requestedResource")
             .populate("allocatedResource")
             .sort({
                 createdAt: -1
             });
 
-        res.status(200).json(
+        res.status(200).json({
+            success: true,
             reservations
-        );
+    });
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+        console.error(error);
+
+return res.status(500).json({
+    success: false,
+    message: "Internal server error"
+});
 
     }
 
@@ -94,6 +289,7 @@ const cancelReservation = async (
         if (!reservation) {
 
             return res.status(404).json({
+                success: false,
                 message:
                     "Reservation not found"
             });
@@ -106,6 +302,7 @@ const cancelReservation = async (
         ) {
 
             return res.status(403).json({
+                success: false,
                 message:"You can cancel only your reservations"
             });
 
@@ -143,7 +340,7 @@ const cancelReservation = async (
        
 
         res.status(200).json({
-
+            success: true,
             message:
                 "Reservation cancelled successfully"
 
@@ -151,10 +348,12 @@ const cancelReservation = async (
 
     } catch (error) {
 
-        res.status(500).json({
-            message:
-                error.message
-        });
+        console.error(error);
+
+return res.status(500).json({
+    success: false,
+    message: "Internal server error"
+});
 
     }
 
@@ -188,37 +387,58 @@ const getReservationById = async (
         if (!reservation) {
 
             return res.status(404).json({
+                success: false,
                 message:
                     "Reservation not found"
             });
 
         }
 
-        res.status(200).json(
+        res.status(200).json({
+            success: true,
             reservation
-        );
+    });
 
     } catch (error) {
 
-        res.status(500).json({
-            message:
-                error.message
-        });
+        console.error(error);
+
+return res.status(500).json({
+    success: false,
+    message: "Internal server error"
+});
 
     }
 
 };
 
-const getReservationsForMyResources =
-async (
+const getReservationsForMyResources = async (
     req,
     res
 ) => {
 
     try {
 
+        const resources =
+            await Resource.find({
+
+                createdBy: req.user.id
+
+            });
+
+        const resourceIds =
+            resources.map(
+                resource => resource._id
+            );
+
         const reservations =
-            await Reservation.find()
+            await Reservation.find({
+
+                requestedResource: {
+                    $in: resourceIds
+                }
+
+            })
 
             .populate(
                 "requestedResource"
@@ -231,40 +451,32 @@ async (
             .populate(
                 "user",
                 "-password"
-            );
+            )
 
-        const filteredReservations =
-            reservations.filter(
-                reservation =>
+            .sort({
+                createdAt: -1
+            });
 
-                    reservation
-                    .requestedResource
-                    ?.createdBy
-                    ?.toString()
+        res.status(200).json({
+            success: true,
+            reservations
+    });
 
-                    ===
+    }
 
-                    req.user.id
-            );
+    catch (error) {
 
-        res.status(200).json(
-            filteredReservations
-        );
+        console.error(error);
 
-    } catch (error) {
-
-        res.status(500).json({
-            message:
-                error.message
-        });
+return res.status(500).json({
+    success: false,
+    message: "Internal server error"
+});
 
     }
 
 };
-const updateReservation = async (
-    req,
-    res
-) => {
+const updateReservation = async (req, res) => {
 
     try {
 
@@ -276,62 +488,195 @@ const updateReservation = async (
         if (!reservation) {
 
             return res.status(404).json({
-                message:
-                    "Reservation not found"
+                success: false,
+                message: "Reservation not found"
             });
 
         }
 
         if (
-            reservation.user.toString()
-            !== req.user.id
+            reservation.user.toString() !==
+            req.user.id
         ) {
 
             return res.status(403).json({
-                message:
-                    "You can update only your reservations"
+                success: false,
+                message: "You can update only your reservations"
             });
 
         }
 
         if (
-            reservation.status !==
-            "PENDING"
+            reservation.status !== "PENDING"
         ) {
 
             return res.status(400).json({
-                message:
-                    "Only pending reservations can be edited"
+                success: false,
+                message: "Only pending reservations can be edited"
             });
 
         }
+
+        const resource =
+            await Resource.findById(
+                req.body.requestedResource
+            );
+
+        if (!resource) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Resource not found"
+            });
+
+        }
+        if (
+    resource.resourceType === "QUANTITY_BASED" &&
+    req.body.allocationPreference === "ALTERNATE_RESOURCE"
+) {
+    return res.status(400).json({
+        success: false,
+        message:
+            "Alternate Resource is not allowed for quantity-based resources."
+    });
+}
+
+        const startParts =
+            req.body.startTime.split(":");
+
+        const startMinutes =
+            parseInt(startParts[0],10) * 60 +
+            parseInt(startParts[1],10);
+
+        const endMinutes =
+            startMinutes +
+            (req.body.durationHours * 60);
+
+        const openingParts =
+            resource.workingStartTime.split(":");
+
+        const openingMinutes =
+            parseInt(openingParts[0],10) * 60 +
+            parseInt(openingParts[1],10);
+
+        if (startMinutes < openingMinutes) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                `Resource opens at ${resource.workingStartTime}. Please choose a later start time.`
+
+            });
+
+        }
+
+
+        const closingParts =
+            resource.workingEndTime.split(":");
+
+        const closingMinutes =
+            parseInt(closingParts[0],10) * 60 +
+            parseInt(closingParts[1],10);
+
+        if (endMinutes > closingMinutes) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                `Resource closes at ${resource.workingEndTime}. Please choose a shorter duration or earlier start time.`
+
+            });
+
+        }
+
+
+        if (
+
+            resource.resourceType ===
+            "CAPACITY_BASED" &&
+
+            req.body.participantCount >
+            resource.capacity
+
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                `Participant count cannot exceed resource capacity (${resource.capacity}).`
+
+            });
+
+        }
+
+
+        if (
+
+            resource.resourceType ===
+            "QUANTITY_BASED" &&
+
+            req.body.quantityRequired >
+            resource.availableUnits
+
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                `Only ${resource.availableUnits} units are available.`
+
+            });
+
+        }
+        const [year, month, day] =
+    req.body.date.split("-").map(Number);
+
+const bookingDate = new Date(
+    year,
+    month - 1,
+    day,
+    0,
+    1,
+    0,
+    0
+);
 
         const updatedReservation =
             await Reservation.findByIdAndUpdate(
 
-                req.params.id,
+    req.params.id,
 
-                req.body,
+    {
+        ...req.body,
+        date: bookingDate
+    },
 
-                { new: true }
+    {
+        new: true,
+        runValidators: true
+    }
 
-            );
+);
 
-        res.status(200).json(
-            updatedReservation
-        );
+        res.status(200).json({
+            success: true,
+            reservation: updatedReservation
+    });
 
-    } catch (error) {
+    }
 
-        res.status(500).json({
-            message:
-                error.message
-        });
+    catch (error) {
+
+        console.error(error);
+
+return res.status(500).json({
+    success: false,
+    message: "Internal server error"
+});
 
     }
 
 };
-
 module.exports = {
     createReservation,
     getAllReservations,//for admin

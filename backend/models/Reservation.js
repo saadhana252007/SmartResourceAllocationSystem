@@ -13,6 +13,10 @@ const reservationSchema = new mongoose.Schema(
         ref: "Resource",
         required: true
     },
+    resourceCategory: {
+    type: String,
+    required: true
+},
 
     date: {
         type: Date,
@@ -21,12 +25,15 @@ const reservationSchema = new mongoose.Schema(
 
     startTime: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        match: /^([01]\d|2[0-3]):([0-5]\d)$/
     },
 
     durationHours: {
         type: Number,
-        required: true
+        required: true,
+        min: 1
     },
 
     allocationPreference: {
@@ -34,8 +41,7 @@ const reservationSchema = new mongoose.Schema(
       enum: [
         "SPECIFIC_RESOURCE",
         "ALTERNATE_RESOURCE",
-        "ALTERNATE_TIME",
-        "ALTERNATE_RESOURCE_AND_TIME"
+        "ALTERNATE_TIME"
       ],
       required: true
     },
@@ -47,17 +53,20 @@ const reservationSchema = new mongoose.Schema(
     
     score: {
       type: Number,
-      default: 0
+      default: 0,
+      min: 0
     },
 
     participantCount: {
         type: Number,
-        default: 1
+        default: 1,
+        min: 1
     },
 
     quantityRequired: {
       type: Number,
-      default: 0
+      default: 0,
+      min: 0
     },
 
     purpose: {
@@ -83,12 +92,62 @@ const reservationSchema = new mongoose.Schema(
             "CANCELLED"
         ],
         default: "PENDING"
-    }
+    },
+    alternativeStartTime: {
+        type: String,
+        default: null,
+        trim: true,
+        match: /^([01]\d|2[0-3]):([0-5]\d)$/
+    },
+    allocationType: {
+
+    type: String,
+
+    enum: [
+
+        "REQUESTED",
+
+        "ALTERNATE_RESOURCE",
+
+        "ALTERNATE_TIME"
+
+    ],
+
+    default: "REQUESTED"
+
+    },
+    allocationProcessed: {
+    type: Boolean,
+    default: false
+},
+allocatedAt: {
+    type: Date,
+    default: null
+},
 },
 {
     timestamps: true
 }
 );
+reservationSchema.index({
+
+    date: 1,
+
+    status: 1
+
+});
+
+reservationSchema.index({
+
+    requestedResource: 1
+
+});
+
+reservationSchema.index({
+
+    user: 1
+
+});
 
 module.exports = mongoose.model(
     "Reservation",

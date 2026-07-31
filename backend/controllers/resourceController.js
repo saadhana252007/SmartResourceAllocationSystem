@@ -11,13 +11,21 @@ const createResource = async (req, res) => {
             createdBy: req.user.id
         });
 
-        res.status(201).json(resource);
+        res.status(201).json({
+            success: true,
+            resource});
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+        console.error(error);
+
+return res.status(500).json({
+
+    success: false,
+
+    message: "Internal server error"
+
+});
 
     }
 
@@ -29,13 +37,21 @@ const getAllResources = async (req, res) => {
 
         const resources = await Resource.find();
 
-        res.status(200).json(resources);
+        res.status(200).json({
+            success: true,
+            resources});
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+        console.error(error);
+
+return res.status(500).json({
+
+    success: false,
+
+    message: "Internal server error"
+
+});
 
     }
 
@@ -47,20 +63,25 @@ const getResourcesByCategory = async (req, res) => {
 
         const category = req.params.category;
 
-        const resources = await Resource.find({
-            category: category
-        });
+        const resources = await Resource.find({category: category});
 
-        res.status(200).json(resources);
+        res.status(200).json({
+            success:true,
+            resources});
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+    console.error(error);
 
-    }
+return res.status(500).json({
 
+    success: false,
+
+    message: "Internal server error"
+
+});
+
+}
 };
 
 const getRecommendedResources = async (req, res) => {
@@ -79,13 +100,21 @@ const getRecommendedResources = async (req, res) => {
             (a, b) => a.capacity - b.capacity
         );
 
-        res.status(200).json(resources);
+        res.status(200).json({
+            success: true,
+            resources});
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+        console.error(error);
+
+return res.status(500).json({
+
+    success: false,
+
+    message: "Internal server error"
+
+});
 
     }
 
@@ -102,6 +131,7 @@ const getBookingStatus = async (req, res) => {
 
         if (!resource) {
             return res.status(404).json({
+                success: false,
                 message: "Resource not found"
             });
         }
@@ -176,9 +206,15 @@ const getBookingStatus = async (req, res) => {
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+        console.error(error);
+
+return res.status(500).json({
+
+    success: false,
+
+    message: "Internal server error"
+
+});
 
     }
 
@@ -193,13 +229,21 @@ const getMyResources = async (req, res) => {
                 createdBy: req.user.id
             });
 
-        res.status(200).json(resources);
+        res.status(200).json({
+            success: true,
+            resources});
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+        console.error(error);
+
+return res.status(500).json({
+
+    success: false,
+
+    message: "Internal server error"
+
+});
 
     }
 
@@ -217,6 +261,7 @@ const updateResource = async (req, res) => {
         if (!resource) {
 
             return res.status(404).json({
+                success: false,
                 message: "Resource not found"
             });
 
@@ -228,6 +273,7 @@ const updateResource = async (req, res) => {
         ) {
 
             return res.status(403).json({
+                success: false,
                 message:
                     "You can update only your resources"
             });
@@ -241,17 +287,24 @@ const updateResource = async (req, res) => {
                 { new: true }
             );
 
-        res.status(200).json(
+        res.status(200).json({
+            success: true, 
             updatedResource
-        );
+    });
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+    console.error(error);
 
-    }
+return res.status(500).json({
+
+    success: false,
+
+    message: "Internal server error"
+
+});
+
+}
 
 };
 
@@ -259,46 +312,91 @@ const deleteResource = async (req, res) => {
 
     try {
 
-        const resource =
-            await Resource.findById(
-                req.params.id
-            );
+        const resource = await Resource.findById(
+            req.params.id
+        );
 
         if (!resource) {
 
             return res.status(404).json({
-                message:
-                    "Resource not found"
+                success: false,
+                message: "Resource not found"
             });
 
         }
 
         if (
-            resource.createdBy.toString()
-            !== req.user.id
+            resource.createdBy.toString() !== req.user.id
         ) {
 
             return res.status(403).json({
+                success: false,
                 message:
                     "You can delete only your resources"
             });
 
         }
 
+        const today = new Date();
+
+today.setHours(0, 0, 0, 0);
+
+
+await Reservation.updateMany(
+    {
+        requestedResource: resource._id,
+        date: { $gte: today },
+        status: {
+            $in: [
+                "PENDING",
+                "APPROVED",
+                "WAITLISTED",
+                "ALTERNATIVE_APPROVED"
+            ]
+        }
+    },
+    {
+        $set: {
+            status: "CANCELLED"
+        }
+    }
+);
+
+
+await Reservation.updateMany(
+    {
+        requestedResource: resource._id,
+        date: { $lt: today }
+    },
+    {
+        $set: {}
+    }
+);
+
         await Resource.findByIdAndDelete(
-            req.params.id
+            resource._id
         );
 
         res.status(200).json({
+            success: true,
             message:
-                "Resource deleted successfully"
+                "Resource deleted successfully. Related reservations have been cancelled."
+
         });
 
-    } catch (error) {
+    }
 
-        res.status(500).json({
-            message: error.message
-        });
+    catch (error) {
+
+        console.error(error);
+
+return res.status(500).json({
+
+    success: false,
+
+    message: "Internal server error"
+
+});
 
     }
 
@@ -311,34 +409,75 @@ const getResourceById = async (
 
     try {
 
-        const resource =
-            await Resource.findById(
-                req.params.id
-            );
+        const resource = await Resource.findById(req.params.id);
 
         if (!resource) {
 
             return res.status(404).json({
+                success: false,
                 message:
                     "Resource not found"
             });
 
         }
 
-        res.status(200).json(
+        res.status(200).json({
+            success: true,
             resource
-        );
+    });
 
     } catch (error) {
 
-        res.status(500).json({
-            message:
-                error.message
-        });
+        console.error(error);
+
+return res.status(500).json({
+
+    success: false,
+
+    message: "Internal server error"
+
+});
 
     }
 
 };
+const getMyResourcesByCategory = async (req,res)=>{
+
+    try{
+
+        const resources =
+
+            await Resource.find({
+
+                createdBy:req.user.id,
+
+                category:req.params.category
+
+            });
+
+        res.status(200).json({
+            success: true,
+            resources});
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+return res.status(500).json({
+
+    success: false,
+
+    message: "Internal server error"
+
+});
+
+    }
+
+};
+
+
 
 module.exports = {
     createResource,
@@ -349,5 +488,6 @@ module.exports = {
     getMyResources,
     updateResource,
     deleteResource,
-    getResourceById
+    getResourceById,
+    getMyResourcesByCategory
 };

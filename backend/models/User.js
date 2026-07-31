@@ -4,18 +4,31 @@ const userSchema = new mongoose.Schema(
 {
     name: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
 
     email: {
         type: String,
         required: true,
-        unique: true
-    },
+        unique: true,
+        trim: true,
+        lowercase: true,
+        match: /^\S+@\S+\.\S+$/
+},
 
     password: {
         type: String,
         required: true
+    },
+    resetOTP: {
+        type: String,
+        default: null
+    },
+
+    resetOTPExpiry: {
+        type: Date,
+        default: null
     },
 
     role: {

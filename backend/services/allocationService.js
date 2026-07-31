@@ -1,30 +1,131 @@
 const Reservation = require("../models/Reservation");
 
+function convertToMinutes(time){
+
+    if (!time) return 0;
+
+    const [hour, minute] = time.split(":").map(Number);
+
+    return hour * 60 + minute;
+
+}
+
+function convertToTime(minutes){
+    const hour = Math.floor(minutes / 60);
+    const minute = minutes % 60;
+    return `${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
+}
+async function findAlternateTime(
+    resource,
+    reservation,
+    temporaryAllocations = []
+){
+    const start = convertToMinutes(resource.workingStartTime);
+    const end = convertToMinutes(resource.workingEndTime);
+    const duration = reservation.durationHours * 60;
+    const requested = convertToMinutes(reservation.startTime);
+    const existingReservations =
+        await Reservation.find({
+            requestedResource: resource._id,
+            date: reservation.date,
+            status:{
+                $in:[
+                    "APPROVED",
+                    "ALTERNATIVE_APPROVED"
+                ]
+            }
+
+        });
+    const occupied=[];
+    existingReservations.forEach(r=>{
+
+    const actualStart =
+        r.alternativeStartTime ||
+        r.startTime;
+
+    occupied.push({
+
+        start:
+            convertToMinutes(actualStart),
+
+        end:
+            convertToMinutes(actualStart)
+            +
+            r.durationHours * 60
+
+    });
+
+});
+    temporaryAllocations.forEach(slot=>{
+
+    if(
+        slot.resource.toString()===
+        resource._id.toString()
+    ){
+
+        occupied.push({
+
+            start:
+                slot.start,
+
+            end:
+                slot.end
+
+        });
+
+    }
+
+});
+    const isFree=(candidate)=>{
+        for(const slot of occupied){
+            if(candidate < slot.end && candidate + duration > slot.start){
+                return false;
+            }
+        }
+        return true;
+    };
+    for(
+        let current=requested+30;
+        current+duration<=end;
+        current+=30
+    ){
+        if(isFree(current)){
+            return convertToTime(current);
+        }
+    }
+    for(
+        let current=requested-30;
+        current>=start;
+        current-=30
+    ){
+        if(isFree(current)){
+            return convertToTime(current);
+        }
+    }
+    return null;
+}
 const calculateCapacityScore = (
     resourceCapacity,
     participantCount
 ) => {
-
     if (participantCount > resourceCapacity) {
         return 0;
     }
+    if (resourceCapacity <= 0)
+    return 0;
 
-    return (
-        participantCount / resourceCapacity
-    ) * 100;
-
+return (
+    participantCount /
+    resourceCapacity
+) * 100;
 };
-
 const calculateFairUsageScore = async (
     userId
 ) => {
-
     const thirtyDaysAgo = new Date();
-
     thirtyDaysAgo.setDate(
         thirtyDaysAgo.getDate() - 30
     );
-
     const recentAllocations =
         await Reservation.countDocuments({
             user: userId,
@@ -34,87 +135,64 @@ const calculateFairUsageScore = async (
                     "ALTERNATIVE_APPROVED"
                 ]
             },
-            updatedAt: {
-                $gte: thirtyDaysAgo
-            }
+            allocatedAt: {
+    $gte: thirtyDaysAgo
+}
         });
-
     return Math.max(
         0,
         100 - recentAllocations * 5
     );
-
 };
-
 const calculatePurposeScore = (
     purpose
 ) => {
-
     const purposeWeights = {
-
         "Academic": 100,
-
         "Research": 90,
-
         "Project Work": 80,
-
         "Club Activity": 70,
-
         "Personal": 50
-
     };
-
     return (
         purposeWeights[purpose] || 50
     );
-
 };
-
 const calculateFinalScore = async (
     reservation,
     resource
 ) => {
-
     const capacityScore =
         calculateCapacityScore(
             resource.capacity,
             reservation.participantCount
         );
-
     const fairUsageScore =
         await calculateFairUsageScore(
             reservation.user
         );
-
     const purposeScore =
         calculatePurposeScore(
             reservation.purpose
         );
-
     return (
         capacityScore * 0.5 +
         fairUsageScore * 0.3 +
         purposeScore * 0.2
     );
-
 };
-
 const allocateCapacityResources = async (
     reservations,
     resources
 ) => {
-
     const scoredReservations = [];
-
     for (const reservation of reservations) {
-
         const requestedResource =
             resources.find(
                 resource =>
                     resource._id.toString() ===
                     reservation.requestedResource._id.toString()
             );
-
         if (
             !requestedResource ||
             requestedResource.capacity <
@@ -122,18 +200,15 @@ const allocateCapacityResources = async (
         ) {
             continue;
         }
-
         const score =
             await calculateFinalScore(
                 reservation,
                 requestedResource
             );
-
         scoredReservations.push({
             reservation,
             score
         });
-
     }
 
     scoredReservations.sort(
@@ -244,15 +319,23 @@ const executeAllocations = async (
                     },
                     update: {
                         $set: {
-                            allocatedResource:
-                                allocation.resource,
 
-                            score:
-                                allocation.score,
+    allocatedResource:
+        allocation.resource,
 
-                            status:
-                                "APPROVED"
-                        }
+    score:
+        allocation.score,
+
+    allocationType:
+        "REQUESTED",
+
+    status:
+        "APPROVED",
+
+    allocatedAt:
+        new Date()
+
+}
                     }
                 }
             })
@@ -274,6 +357,8 @@ const calculateQuantityScore = (
     ) {
         return 0;
     }
+    if (availableUnits <= 0)
+    return 0;
 
     return (
         quantityRequired /
@@ -339,29 +424,74 @@ const allocateQuantityResources = async (
     }
 
     scoredReservations.sort(
-        (a, b) => b.score - a.score
-    );
+        (a, b) => {
 
-    let remainingUnits =
-        resource.availableUnits;
+            if (b.score !== a.score) {
+                return b.score - a.score;
+            }
+
+            return (
+                new Date(a.reservation.createdAt) -
+                new Date(b.reservation.createdAt)
+            );
+
+        }
+    );
 
     const allocations = [];
 
     const failures = [];
 
+    const allocatedReservations = [];
+
     for (const item of scoredReservations) {
 
+        const reservation =
+            item.reservation;
+
         const requiredUnits =
-            item.reservation.quantityRequired;
+            reservation.quantityRequired;
+
+        const currentStart =
+            convertToMinutes(
+                reservation.startTime
+            );
+
+        const currentEnd =
+            currentStart +
+            reservation.durationHours * 60;
+
+        let usedUnits = 0;
+
+        for (const allocated of allocatedReservations) {
+
+            const overlap =
+
+                currentStart < allocated.end &&
+                currentEnd > allocated.start;
+
+            if (overlap) {
+
+                usedUnits +=
+                    allocated.units;
+
+            }
+
+        }
+
+        const availableUnits =
+            resource.availableUnits -
+            usedUnits;
 
         if (
-            remainingUnits >= requiredUnits
+            availableUnits >=
+            requiredUnits
         ) {
 
             allocations.push({
 
                 reservation:
-                    item.reservation._id,
+                    reservation._id,
 
                 resource:
                     resource._id,
@@ -371,15 +501,33 @@ const allocateQuantityResources = async (
 
             });
 
-            remainingUnits -=
-                requiredUnits;
+            allocatedReservations.push({
 
-        } else {
+                start:
+                    currentStart,
+
+                end:
+                    currentEnd,
+
+                units:
+                    requiredUnits
+
+            });
+
+        }
+
+        else {
 
             failures.push({
-                reservation:item.reservation,
-                resource:resource._id,
-                score:item.score
+
+                reservation,
+
+                resource:
+                    resource._id,
+
+                score:
+                    item.score
+
             });
 
         }
@@ -387,8 +535,11 @@ const allocateQuantityResources = async (
     }
 
     return {
+
         allocations,
+
         failures
+
     };
 
 };
@@ -403,7 +554,6 @@ const splitFailedReservations = (
 
     const alternateTime = [];
 
-    const alternateResourceAndTime = [];
 
     for (const item of failures) {
 
@@ -433,20 +583,10 @@ const splitFailedReservations = (
 
         }
 
-        else if (
-            preference ===
-            "ALTERNATE_TIME"
-        ) {
-
-            alternateTime.push(
-                item
-            );
-
-        }
 
         else {
 
-            alternateResourceAndTime.push(
+           alternateTime.push(
                 item
             );
 
@@ -460,9 +600,7 @@ const splitFailedReservations = (
 
         alternateResource,
 
-        alternateTime,
-
-        alternateResourceAndTime
+        alternateTime
 
     };
 
@@ -513,19 +651,25 @@ const promoteWaitlistedReservations = async (
 ) => {
 
     const waitlistedReservations =
-        await Reservation.find({
+    await Reservation.find({
 
-            requestedResource:
-                resourceId,
+        requestedResource:
+            resourceId,
 
-            date:
-                bookingDate,
+        date:
+            bookingDate,
 
-            status:
-                "WAITLISTED"
+        status:
+            "WAITLISTED"
 
-        })
-        .sort({ score: -1 });
+    })
+    .sort({
+
+        score: -1,
+
+        createdAt: 1
+
+    });
 
     const promoted = [];
 
@@ -565,13 +709,81 @@ const promoteWaitlistedReservations = async (
         {
             $set: {
 
-                allocatedResource:
-                    resourceId,
+    allocatedResource:
+        resourceId,
 
-                status:
-                    "APPROVED"
+    status:
+        "APPROVED",
+
+    allocatedAt:
+        new Date()
+
+}
+        }
+
+    );
+
+};
+const rejectExpiredWaitlistedReservations = async () => {
+
+    const now = new Date();
+
+    const waitlistedReservations =
+        await Reservation.find({
+
+            status: "WAITLISTED"
+
+        });
+
+    const rejectedIds = [];
+
+    for (const reservation of waitlistedReservations) {
+
+        const bookingDate =
+            new Date(reservation.date);
+
+        const actualStart =
+            reservation.alternativeStartTime ||
+            reservation.startTime;
+
+        const [hour, minute] =
+            actualStart.split(":").map(Number);
+
+        bookingDate.setHours(hour, minute, 0, 0);
+
+        if (bookingDate < now) {
+
+            rejectedIds.push(
+                reservation._id
+            );
+
+        }
+
+    }
+
+    if (!rejectedIds.length)
+        return;
+
+    await Reservation.updateMany(
+
+        {
+
+            _id: {
+
+                $in: rejectedIds
 
             }
+
+        },
+
+        {
+
+            $set: {
+
+                status: "REJECTED"
+
+            }
+
         }
 
     );
@@ -583,34 +795,79 @@ const findAlternativeResource = async (
     resources
 ) => {
 
-    const alternatives =
-        resources
+    const alternatives = resources
 
-        .filter(resource =>
+        .filter(resource => {
 
-            resource.category ===
-            reservation.requestedResource.category &&
+            if (
+        resource._id.toString() ===
+        reservation.requestedResource._id.toString()
+    ) {
+        return false;
+    }
 
-            resource.capacity >=
-            reservation.participantCount
+    if (
+        resource.category !==
+        reservation.requestedResource.category
+    ) {
+        return false;
+    }
 
-        )
+            if (
+                resource.resourceType ===
+                "CAPACITY_BASED"
+            ) {
 
-        .sort(
-            (a, b) =>
-                a.capacity - b.capacity
-        );
+                return (
+                    resource.capacity >=
+                    reservation.participantCount
+                );
+
+            }
+
+            return (
+
+                resource.availableUnits >=
+                reservation.quantityRequired
+
+            );
+
+        })
+
+        .sort((a, b) => {
+
+            if (
+                a.resourceType ===
+                "CAPACITY_BASED"
+            ) {
+
+                return (
+                    a.capacity -
+                    b.capacity
+                );
+
+            }
+
+            return (
+
+                a.availableUnits -
+                b.availableUnits
+
+            );
+
+        });
 
     if (
         alternatives.length === 0
     ) {
+
         return null;
+
     }
 
     return alternatives[0];
 
 };
-
 const allocateAlternativeResource =
 async (
     reservation,
@@ -622,14 +879,14 @@ async (
         reservation._id,
 
         {
+    allocatedResource: resource._id,
 
-            allocatedResource:
-                resource._id,
+    allocationType: "ALTERNATE_RESOURCE",
 
-            status:
-                "ALTERNATIVE_APPROVED"
+    status: "ALTERNATIVE_APPROVED",
 
-        }
+    allocatedAt: new Date()
+}
 
     );
 
@@ -648,15 +905,7 @@ async (
             "APPROVED" &&
 
             (
-                reservation
-                .allocationPreference ===
-                "ALTERNATE_RESOURCE"
-
-                ||
-
-                reservation
-                .allocationPreference ===
-                "ALTERNATE_RESOURCE_AND_TIME"
+                reservation.allocationPreference ==="ALTERNATE_RESOURCE"
             )
 
     );
@@ -702,24 +951,10 @@ async (
     ) {
 
         const alternative =
-            resources.find(
-
-                resource =>
-
-                    resource.category ===
-
-                    reservation
-                    .requestedResource
-                    .category
-
-                    &&
-
-                    resource.capacity >=
-
-                    reservation
-                    .participantCount
-
-            );
+    await findAlternativeResource(
+        reservation,
+        resources
+    );
 
         if (!alternative) {
 
@@ -737,19 +972,24 @@ async (
 
         });
 
-        resources =
-            resources.filter(
+        if (
+    alternative.resourceType ===
+    "CAPACITY_BASED"
+) {
 
-                r =>
+    resources =
+        resources.filter(
+            r =>
+                r._id.toString() !==
+                alternative._id.toString()
+        );
 
-                    r._id.toString()
+} else {
 
-                    !==
+    alternative.availableUnits -=
+        reservation.quantityRequired;
 
-                    alternative._id
-                    .toString()
-
-            );
+}
 
     }
 
@@ -781,18 +1021,21 @@ async (
 
                     update: {
 
-                        $set: {
+                       $set:{
 
-                            allocatedResource:
+    allocatedResource:
+        allocation.resource,
 
-                                allocation
-                                .resource,
+    allocationType:
+        "ALTERNATE_RESOURCE",
 
-                            status:
+    status:
+        "ALTERNATIVE_APPROVED",
 
-                                "ALTERNATIVE_APPROVED"
+    allocatedAt:
+        new Date()
 
-                        }
+}          
 
                     }
 
@@ -807,8 +1050,7 @@ async (
 
 };
 
-const allocateAlternativeTime =
-async (
+const allocateAlternativeTime = async (
     failures
 ) => {
 
@@ -816,38 +1058,74 @@ async (
 
     const remainingFailures = [];
 
+    const temporaryAllocations = [];
+
     for (const item of failures) {
 
-        const preference =
-            item.reservation
-            .allocationPreference;
+        const reservation =
+            item.reservation;
 
         if (
-
-            preference !==
+            reservation.allocationPreference !==
             "ALTERNATE_TIME"
-
-            &&
-
-            preference !==
-            "ALTERNATE_RESOURCE_AND_TIME"
-
         ) {
 
-            remainingFailures.push(
-                item
-            );
+            remainingFailures.push(item);
 
             continue;
 
         }
 
-        allocations.push({
+        const suggestedTime =
+    await findAlternateTime(
 
-            reservation:
-                item.reservation._id
+        reservation.requestedResource,
 
-        });
+        reservation,
+
+        temporaryAllocations
+
+    );
+
+        if (suggestedTime) {
+
+            allocations.push({
+
+                reservation:
+                    reservation._id,
+
+                resource:
+                    reservation.requestedResource._id,
+
+                alternativeStartTime:
+                    suggestedTime
+
+            });
+            temporaryAllocations.push({
+
+    resource:
+        reservation.requestedResource._id,
+
+    start:
+        convertToMinutes(
+            suggestedTime
+        ),
+
+    end:
+        convertToMinutes(
+            suggestedTime
+        ) +
+        reservation.durationHours * 60
+
+});
+
+        }
+
+        else {
+
+            remainingFailures.push(item);
+
+        }
 
     }
 
@@ -870,6 +1148,7 @@ async (
         return;
 
     const bulkOps =
+
         allocations.map(
             allocation => ({
 
@@ -878,8 +1157,7 @@ async (
                     filter: {
 
                         _id:
-                            allocation
-                            .reservation
+                            allocation.reservation
 
                     },
 
@@ -887,11 +1165,22 @@ async (
 
                         $set: {
 
-                            status:
+    allocatedResource:
+        allocation.resource,
 
-                            "ALTERNATIVE_APPROVED"
+    alternativeStartTime:
+        allocation.alternativeStartTime,
 
-                        }
+    allocationType:
+        "ALTERNATE_TIME",
+
+    status:
+        "ALTERNATIVE_APPROVED",
+
+    allocatedAt:
+        new Date()
+
+}
 
                     }
 
@@ -905,7 +1194,6 @@ async (
     );
 
 };
-
 const runCapacityWorkflow = async (
     reservations,
     resources
@@ -925,14 +1213,10 @@ const runCapacityWorkflow = async (
     );
 
     const {
-        specificResource,
-        alternateResource,
-        alternateTime,
-        alternateResourceAndTime
-    } =
-    splitFailedReservations(
-        failures
-    );
+    specificResource,
+    alternateResource,
+    alternateTime
+    } = splitFailedReservations(failures);
 
     await executeWaitlist(
         specificResource
@@ -940,9 +1224,7 @@ const runCapacityWorkflow = async (
 
     const round2Candidates = [
 
-        ...alternateResource,
-
-        ...alternateResourceAndTime
+        ...alternateResource
 
     ];
 
@@ -955,35 +1237,30 @@ const runCapacityWorkflow = async (
         );
 
     const availableResources =
-        getAvailableAlternativeResources(
+    getAvailableAlternativeResources(
+        resources,
+        allocatedResourceIds
+    );
 
-            resources,
-
-            allocatedResourceIds
-
-        );
-
-    const round2Allocations =
+const round2Allocations =
     await allocateAlternativeResources(
 
-        round2Candidates.map(
-            item => {
+        alternateResource.map(item => {
 
-                item.reservation.score =
-                    item.score;
+            item.reservation.score =
+                item.score;
 
-                return item.reservation;
+            return item.reservation;
 
-            }
-        ),
+        }),
 
         availableResources
 
     );
 
-    await executeAlternativeAllocations(
-        round2Allocations
-    );
+await executeAlternativeAllocations(
+    round2Allocations
+);
 
     const round2AllocatedIds =
         new Set(
@@ -1006,16 +1283,7 @@ const runCapacityWorkflow = async (
         );
 
     const round3Candidates = [
-
-        ...alternateTime,
-
-        ...round2Failures.filter(
-            item =>
-                item.reservation
-                .allocationPreference ===
-                "ALTERNATE_RESOURCE_AND_TIME"
-        )
-
+        ...alternateTime
     ];
 
     const resourceOnlyFailures =
@@ -1082,12 +1350,10 @@ const runAllocationWorkflow = async (
         );
 
     }
-
-    if (quantityReservations.length > 0) {
+if (quantityReservations.length > 0) {
 
     const quantityResource =
-        quantityReservations[0]
-        .requestedResource;
+        quantityReservations[0].requestedResource;
 
     const {
         allocations,
@@ -1102,13 +1368,37 @@ const runAllocationWorkflow = async (
         allocations
     );
 
-    await executeWaitlist(
+    const {
+        specificResource,
+        alternateTime
+    } = splitFailedReservations(
         failures
+    );
+
+    await executeWaitlist(
+        specificResource
+    );
+
+    const {
+        allocations: round2Allocations,
+        remainingFailures
+    } =
+    await allocateAlternativeTime(
+        alternateTime
+    );
+
+    await executeAlternativeTimeAllocations(
+        round2Allocations
+    );
+
+    await executeWaitlist(
+        remainingFailures
     );
 
 }
 
-};
+}
+
 module.exports = {
     calculateCapacityScore,
 
@@ -1152,6 +1442,8 @@ module.exports = {
 
     runAllocationWorkflow,
     
-    runCapacityWorkflow
+    runCapacityWorkflow,
+
+    rejectExpiredWaitlistedReservations
 
 };
