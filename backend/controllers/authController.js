@@ -352,18 +352,36 @@ const forgotPassword = async (req, res) => {
 
 console.log("Skipping email sending for testing");
 
-// Temporarily disable email sending
-// await transporter.sendMail({
-//     from: process.env.EMAIL_USER,
-//     to: email,
-//     subject: "Password Reset OTP",
-//     html: `
-//         <h2>Smart Resource Allocation System</h2>
-//         <p>Your OTP for password reset is:</p>
-//         <h1>${otp}</h1>
-//         <p>This OTP is valid for only 5 minutes.</p>
-//     `
-// });
+await Promise.race([
+
+    transporter.sendMail({
+
+        from: process.env.EMAIL_USER,
+
+        to: email,
+
+        subject: "Password Reset OTP",
+
+        html: `
+            <h2>Smart Resource Allocation System</h2>
+
+            <p>Your OTP for password reset is:</p>
+
+            <h1>${otp}</h1>
+
+            <p>This OTP is valid for only 5 minutes.</p>
+        `
+
+    }),
+
+    new Promise((_, reject) =>
+        setTimeout(
+            () => reject(new Error("Email timeout")),
+            10000
+        )
+    )
+
+]);
 
 return res.status(200).json({
 
