@@ -322,39 +322,9 @@ const forgotPassword = async (req, res) => {
 
     try {
 
-        const { email } = req.body;
+    console.log("Sending email...");
 
-        const user = await User.findOne({ email });
-
-        if (!user) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message: "User not found"
-
-            });
-
-        }
-
-        const otp = Math.floor(
-
-            100000 + Math.random() * 900000
-
-        ).toString();
-
-        user.resetOTP = otp;
-
-        user.resetOTPExpiry = Date.now() + 5 * 60 * 1000;
-
-        await user.save();
-
-console.log("Skipping email sending for testing");
-
-await Promise.race([
-
-    transporter.sendMail({
+    const info = await transporter.sendMail({
 
         from: process.env.EMAIL_USER,
 
@@ -362,49 +332,19 @@ await Promise.race([
 
         subject: "Password Reset OTP",
 
-        html: `
-            <h2>Smart Resource Allocation System</h2>
-
-            <p>Your OTP for password reset is:</p>
-
-            <h1>${otp}</h1>
-
-            <p>This OTP is valid for only 5 minutes.</p>
-        `
-
-    }),
-
-    new Promise((_, reject) =>
-        setTimeout(
-            () => reject(new Error("Email timeout")),
-            10000
-        )
-    )
-
-]);
-
-return res.status(200).json({
-
-    success: true,
-
-    message: "OTP sent successfully"
-
-});
-
-    } catch (error) {
-
-    console.error("Forgot Password Error:", error);
-
-    return res.status(500).json({
-
-        success: false,
-
-        message: error.message
+        text: `Your OTP is ${otp}`
 
     });
 
-}
+    console.log("Email sent successfully:", info.messageId);
 
+} catch (err) {
+
+    console.error("SMTP ERROR:", err);
+
+    throw err;
+
+}
 };
 const verifyOTP = async (req, res) => {
 
