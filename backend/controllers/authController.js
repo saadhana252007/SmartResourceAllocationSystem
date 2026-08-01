@@ -1,7 +1,9 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const transporter = require("../config/email");
+const { Resend } = require("resend");
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const generateToken = (user) => {
 
@@ -335,41 +337,42 @@ const forgotPassword = async (req, res) => {
 
         }
 
-        const otp = Math.floor(
-            100000 + Math.random() * 900000
-        ).toString();
+ const otp = Math.floor(
+    100000 + Math.random() * 900000
+).toString();
 
-        user.resetOTP = otp;
-        user.resetOTPExpiry = Date.now() + 5 * 60 * 1000;
+user.resetOTP = otp;
+user.resetOTPExpiry = Date.now() + 5 * 60 * 1000;
 
-        await user.save();
+await user.save();
 
-        console.log("Sending email...");
+await resend.emails.send({
 
-const info = await transporter.sendMail({
-
-    from: process.env.EMAIL_USER,
+    from: "Smart Resource Allocation <onboarding@resend.dev>",
 
     to: email,
 
     subject: "Password Reset OTP",
 
-    text: `Your OTP is ${otp}`
+    html: `
+        <h2>Smart Resource Allocation System</h2>
+
+        <p>Your OTP for password reset is:</p>
+
+        <h1>${otp}</h1>
+
+        <p>This OTP is valid for only 5 minutes.</p>
+    `
 
 });
 
-console.log("AFTER SENDMAIL");
-console.log(info);
+return res.status(200).json({
 
-        console.log("Email sent:", info);
+    success: true,
 
-        return res.status(200).json({
+    message: "OTP sent successfully"
 
-            success: true,
-
-            message: "OTP sent successfully"
-
-        });
+});
 
     } catch (err) {
 
