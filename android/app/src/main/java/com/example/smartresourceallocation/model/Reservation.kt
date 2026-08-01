@@ -20,6 +20,16 @@ data class Reservation(
 
     val quantityRequired: Int,
 
-    val requestedResource: Resource
+    val user: User,
+
+    val requestedResource: Resource?,
+
+    val resourceCategory: String,
+
+    val allocatedResource: Resource?,
+
+    val allocationType: String?,
+
+    val alternativeStartTime: String?
 
 )

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string-array name="resource_categories">
+
+        <item>Meeting Room</item>
+
+        <item>Laboratory Equipment</item>
+
+        <item>Projector</item>
+
+        <item>Sports Facility</item>
+
+        <item>Study Area</item>
+
+    </string-array>
+
+</resources>

@@ -2,69 +2,67 @@ package com.example.smartresourceallocation.ui.splash
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
-import com.example.smartresourceallocation.ui.auth.LoginActivity
-import com.example.smartresourceallocation.ui.home.HomeActivity
-import com.example.smartresourceallocation.utils.SharedPrefManager
-
+import com.example.smartresourceallocation.R
 import com.example.smartresourceallocation.ui.admin.AdminHomeActivity
-import com.example.smartresourceallocation.ui.user.UserHomeActivity
+import com.example.smartresourceallocation.ui.auth.LoginActivity
 import com.example.smartresourceallocation.ui.dashboard.UserDashboardActivity
+import com.example.smartresourceallocation.utils.SharedPrefManager
 
 class SplashActivity : AppCompatActivity() {
 
-    override fun onCreate(
-        savedInstanceState: Bundle?
-    ) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
-        val pref =
-            SharedPrefManager(this)
+        setContentView(R.layout.activity_splash)
 
-        val token =
-            pref.getToken()
+        Handler(Looper.getMainLooper()).postDelayed({
 
-        val role =
-            pref.getRole()
+            val pref = SharedPrefManager(this)
 
-        if (
-            token != null &&
-            role != null
-        ) {
+            val token = pref.getToken()
 
-            if (role == "ADMIN") {
+            val role = pref.getRole()
 
-                startActivity(
-                    Intent(
-                        this,
-                        AdminHomeActivity::class.java
+            if (!token.isNullOrBlank() && !role.isNullOrBlank())  {
+
+                if (role == "ADMIN") {
+
+                    startActivity(
+                        Intent(
+                            this,
+                            AdminHomeActivity::class.java
+                        )
                     )
-                )
+
+                } else {
+
+                    startActivity(
+                        Intent(
+                            this,
+                            UserDashboardActivity::class.java
+                        )
+                    )
+
+                }
 
             } else {
 
                 startActivity(
                     Intent(
                         this,
-                        UserDashboardActivity::class.java
+                        LoginActivity::class.java
                     )
                 )
 
             }
 
-        } else {
+            finish()
 
-            startActivity(
-                Intent(
-                    this,
-                    LoginActivity::class.java
-                )
-            )
-
-        }
-
-
-        finish()
+        }, 2500)
 
     }
 

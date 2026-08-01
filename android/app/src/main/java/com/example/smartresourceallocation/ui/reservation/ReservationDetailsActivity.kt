@@ -5,11 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.smartresourceallocation.databinding.ActivityReservationDetailsBinding
 import com.example.smartresourceallocation.ui.resource.ResourceDetailsActivity
 import android.content.Intent
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.smartresourceallocation.viewmodel.ReservationViewModel
 import androidx.appcompat.app.AlertDialog
 import com.example.smartresourceallocation.utils.SharedPrefManager
+import com.example.smartresourceallocation.model.Reservation
+import com.example.smartresourceallocation.utils.DateUtils
 
 class ReservationDetailsActivity :
     AppCompatActivity() {
@@ -21,6 +24,8 @@ class ReservationDetailsActivity :
             ReservationViewModel
 
     private var reservationId = ""
+
+    private var currentReservation: Reservation? = null
 
 
 
@@ -52,8 +57,21 @@ class ReservationDetailsActivity :
 
             }
         loadReservationData()
+        fetchReservation()
 
         binding.btnViewResource.setOnClickListener {
+
+            val reservation = currentReservation ?: return@setOnClickListener
+
+            val resource =
+                if (
+                    reservation.status == "ALTERNATIVE_APPROVED"
+                ) {
+                    reservation.allocatedResource
+                        ?: reservation.requestedResource
+                } else {
+                    reservation.requestedResource
+                } ?: return@setOnClickListener
 
             val resourceIntent =
                 Intent(
@@ -63,69 +81,52 @@ class ReservationDetailsActivity :
 
             resourceIntent.putExtra(
                 "name",
-                intent.getStringExtra(
-                    "resourceName"
-                )
+                resource.name
             )
 
             resourceIntent.putExtra(
                 "category",
-                intent.getStringExtra(
-                    "category"
-                )
+                resource.category
             )
 
             resourceIntent.putExtra(
                 "description",
-                intent.getStringExtra(
-                    "description"
-                )
+                resource.description
             )
 
             resourceIntent.putExtra(
                 "location",
-                intent.getStringExtra(
-                    "location"
-                )
+                resource.location
             )
 
             resourceIntent.putExtra(
                 "resourceType",
-                intent.getStringExtra(
-                    "resourceType"
-                )
+                resource.resourceType
             )
 
             resourceIntent.putExtra(
                 "capacity",
-                intent.getIntExtra(
-                    "capacity",
-                    0
-                )
+                resource.capacity
             )
 
             resourceIntent.putExtra(
                 "availableUnits",
-                intent.getIntExtra(
-                    "availableUnits",
-                    0
-                )
+                resource.availableUnits
             )
 
             resourceIntent.putExtra(
                 "bookingOpenBeforeHours",
-                intent.getIntExtra(
-                    "bookingOpenBeforeHours",
-                    0
-                )
+                resource.bookingOpenBeforeHours
             )
 
             resourceIntent.putExtra(
                 "bookingWindowDurationHours",
-                intent.getIntExtra(
-                    "bookingWindowDurationHours",
-                    0
-                )
+                resource.bookingWindowDurationHours
+            )
+
+            resourceIntent.putExtra(
+                "imageUrl",
+                resource.imageUrl
             )
 
             resourceIntent.putExtra(
@@ -148,7 +149,7 @@ class ReservationDetailsActivity :
 
         super.onResume()
 
-        loadReservationData()
+        fetchReservation()
 
     }
 
@@ -170,6 +171,10 @@ class ReservationDetailsActivity :
         val resourceName =
             intent.getStringExtra(
                 "resourceName"
+            )
+        val allocatedResourceName =
+            intent.getStringExtra(
+                "allocatedResourceName"
             )
 
         val date =
@@ -226,28 +231,53 @@ class ReservationDetailsActivity :
                 "status"
             )
 
-        if (status != "PENDING") {
 
-            binding.btnEditReservation.isEnabled =
-                false
+        binding.btnEditReservation.isEnabled =
+            status == "PENDING"
 
-            binding.btnCancelReservation.isEnabled =
-                false
+        binding.btnEditReservation.alpha =
+            if (status == "PENDING") 1f else 0.5f
 
-            binding.btnEditReservation.alpha =
-                0.5f
 
-            binding.btnCancelReservation.alpha =
-                0.5f
+        binding.btnCancelReservation.isEnabled =
+            status == "PENDING" || status == "APPROVED"
+
+        binding.btnCancelReservation.alpha =
+            if (
+                status == "PENDING" ||
+                status == "APPROVED"
+            ) 1f else 0.5f
+
+        binding.tvRequestedResource.text =
+            resourceName
+
+        if (
+            status == "ALTERNATIVE_APPROVED" &&
+            !allocatedResourceName.isNullOrEmpty()
+        ) {
+
+            binding.tvAllocatedLabel.visibility =
+                View.VISIBLE
+
+            binding.tvAllocatedResource.visibility =
+                View.VISIBLE
+
+            binding.tvAllocatedResource.text =
+                allocatedResourceName
+
+        } else {
+
+            binding.tvAllocatedLabel.visibility =
+                View.GONE
+
+            binding.tvAllocatedResource.visibility =
+                View.GONE
 
         }
 
-        binding.tvResourceName.text =
-            resourceName
-
         binding.tvDate.text =
             "Date: ${
-                date?.substring(0,10)
+                date?.let { DateUtils.formatReservationDate(it) }
             }"
 
         binding.tvTime.text =
@@ -264,6 +294,8 @@ class ReservationDetailsActivity :
 
         binding.tvStatus.text =
             "Status: $status"
+
+
 
     }
     private fun observeData() {
@@ -297,13 +329,38 @@ class ReservationDetailsActivity :
             this
         ){
 
-            binding.tvResourceName.text =
-                it.requestedResource.name
+            currentReservation = it
+
+            binding.tvRequestedResource.text =
+                it.requestedResource?.name
+                    ?: "Resource Deleted"
+
+            if (
+                it.status == "ALTERNATIVE_APPROVED" &&
+                it.allocatedResource != null
+            ) {
+
+                binding.tvAllocatedLabel.visibility =
+                    View.VISIBLE
+
+                binding.tvAllocatedResource.visibility =
+                    View.VISIBLE
+
+                binding.tvAllocatedResource.text =
+                    it.allocatedResource.name
+
+            } else {
+
+                binding.tvAllocatedLabel.visibility =
+                    View.GONE
+
+                binding.tvAllocatedResource.visibility =
+                    View.GONE
+
+            }
 
             binding.tvDate.text =
-                "Date: ${
-                    it.date.substring(0,10)
-                }"
+                "Date: ${DateUtils.formatReservationDate(it.date)}"
 
             binding.tvTime.text =
                 "Time: ${it.startTime}"
@@ -472,6 +529,10 @@ class ReservationDetailsActivity :
                 "quantityRequired",
                 0
             )
+        )
+        editIntent.putExtra(
+            "imageUrl",
+            intent.getStringExtra("imageUrl")
         )
 
         startActivityForResult(

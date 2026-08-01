@@ -6,6 +6,7 @@ import com.example.smartresourceallocation.databinding.ActivityResourceDetailsBi
 import com.example.smartresourceallocation.R
 import android.content.Intent
 import android.view.View
+import com.bumptech.glide.Glide
 import com.example.smartresourceallocation.ui.reservation.ReservationActivity
 
 class ResourceDetailsActivity : AppCompatActivity() {
@@ -14,6 +15,8 @@ class ResourceDetailsActivity : AppCompatActivity() {
             ActivityResourceDetailsBinding
 
     private var resourceId = ""
+
+    private var imageUrl = ""
 
     override fun onCreate(
         savedInstanceState: Bundle?
@@ -29,7 +32,13 @@ class ResourceDetailsActivity : AppCompatActivity() {
             binding.root
         )
 
+        resourceId =
+            intent.getStringExtra(
+                "resourceId"
+            ) ?: ""
+
         loadResourceData()
+
 
         val fromReservation =
             intent.getBooleanExtra(
@@ -48,11 +57,6 @@ class ResourceDetailsActivity : AppCompatActivity() {
             openReservationScreen()
 
         }
-
-        resourceId =
-            intent.getStringExtra(
-                "resourceId"
-            ) ?: ""
 
 
     }
@@ -89,6 +93,22 @@ class ResourceDetailsActivity : AppCompatActivity() {
             resourceId
         )
 
+        intent.putExtra(
+            "imageUrl",
+            imageUrl
+        )
+
+        if (resourceId.isBlank()) {
+
+            android.widget.Toast.makeText(
+                this,
+                "Resource not found",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+
+            return
+        }
+
         startActivity(intent)
 
     }
@@ -116,6 +136,9 @@ class ResourceDetailsActivity : AppCompatActivity() {
                 0
             )
 
+        imageUrl =
+            intent.getStringExtra("imageUrl") ?: ""
+
         val availableUnits =
             intent.getIntExtra(
                 "availableUnits",
@@ -134,6 +157,7 @@ class ResourceDetailsActivity : AppCompatActivity() {
                 0
             )
 
+
         binding.tvName.text =
             name
 
@@ -146,12 +170,6 @@ class ResourceDetailsActivity : AppCompatActivity() {
         binding.tvDescription.text =
             description
 
-        binding.tvCategory.text =
-            category
-
-        binding.tvLocation.text =
-            location
-
         binding.detailResourceType.text =
             resourceType
 
@@ -163,41 +181,34 @@ class ResourceDetailsActivity : AppCompatActivity() {
         binding.detailBookingWindow.text =
             "$bookingWindowDurationHours Hours"
 
-        when (category) {
+        val placeholder =
+            when (category) {
 
-            "Meeting Room" -> {
-                binding.imgResource.setImageResource(
+                "Meeting Room" ->
                     R.drawable.meeting
-                )
-            }
 
-            "Laboratory Equipment" -> {
-                binding.imgResource.setImageResource(
+                "Laboratory Equipment" ->
                     R.drawable.lab
-                )
-            }
 
-            "Projector" -> {
-                binding.imgResource.setImageResource(
+                "Projector" ->
                     R.drawable.projector
-                )
-            }
 
-            "Sports Facility" -> {
-                binding.imgResource.setImageResource(
+                "Sports Facility" ->
                     R.drawable.sports
-                )
-            }
 
-            "Study Area" -> {
-                binding.imgResource.setImageResource(
+                "Study Area" ->
                     R.drawable.study
-                )
+
+                else ->
+                    R.drawable.meeting
+
             }
 
-
-
-        }
+        Glide.with(this)
+            .load(imageUrl)
+            .placeholder(placeholder)
+            .error(placeholder)
+            .into(binding.imgResource)
 
         if (
             resourceType ==

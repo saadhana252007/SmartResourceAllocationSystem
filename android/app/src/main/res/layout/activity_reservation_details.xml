@@ -39,12 +39,38 @@
                 android:padding="16dp">
 
                 <TextView
-                    android:id="@+id/tvResourceName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Requested Resource"
+                    android:textStyle="bold"
+                    android:textColor="#6F9BB8"/>
+
+                <TextView
+                    android:id="@+id/tvRequestedResource"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="22sp"
                     android:textStyle="bold"
                     android:textColor="#1B3A57"/>
+
+                <TextView
+                    android:id="@+id/tvAllocatedLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Allocated Resource"
+                    android:textStyle="bold"
+                    android:textColor="#6F9BB8"
+                    android:layout_marginTop="10dp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/tvAllocatedResource"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#1B3A57"
+                    android:visibility="gone"/>
 
                 <View
                     android:layout_width="match_parent"

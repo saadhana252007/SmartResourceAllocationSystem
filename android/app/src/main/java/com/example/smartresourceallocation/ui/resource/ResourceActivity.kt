@@ -101,6 +101,11 @@ class ResourceActivity : AppCompatActivity() {
                     resource.bookingWindowDurationHours
                 )
 
+                intent.putExtra(
+                    "imageUrl",
+                    resource.imageUrl
+                )
+
                 startActivity(intent)
 
             }
@@ -110,6 +115,8 @@ class ResourceActivity : AppCompatActivity() {
 
         binding.rvResources.adapter =
             adapter
+
+        binding.tabMeeting.isSelected = true
 
         viewModel.getResourcesByCategory(
             "Meeting Room"

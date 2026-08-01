@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.smartresourceallocation.databinding.ActivityRegisterBinding
 import com.example.smartresourceallocation.viewmodel.AuthViewModel
+import com.example.smartresourceallocation.utils.SharedPrefManager
+import com.example.smartresourceallocation.ui.admin.AdminHomeActivity
+import com.example.smartresourceallocation.ui.dashboard.UserDashboardActivity
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -55,6 +58,55 @@ class RegisterActivity : AppCompatActivity() {
                     .toString()
                     .trim()
 
+            if (name.isEmpty()) {
+
+                binding.etName.error = "Enter Name"
+
+                return@setOnClickListener
+
+            }
+
+            if (name.length < 3) {
+
+                binding.etName.error = "Minimum 3 characters"
+
+                return@setOnClickListener
+
+            }
+
+            if (email.isEmpty()) {
+
+                binding.etEmail.error = "Enter Email"
+
+                return@setOnClickListener
+
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+
+                binding.etEmail.error = "Invalid Email"
+
+                return@setOnClickListener
+
+            }
+
+            if (password.isEmpty()) {
+
+                binding.etPassword.error = "Enter Password"
+
+                return@setOnClickListener
+
+            }
+
+            if (password.length < 6) {
+
+                binding.etPassword.error =
+                    "Password must be at least 6 characters"
+
+                return@setOnClickListener
+
+            }
+
             viewModel.register(
                 name,
                 email,
@@ -71,16 +123,36 @@ class RegisterActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
 
-            startActivity(
-                Intent(
-                    this,
-                    LoginActivity::class.java
+            val pref = SharedPrefManager(this)
+
+            pref.saveToken(it.token)
+            pref.saveRole(it.role)
+            pref.saveUserName(it.name)
+            pref.saveEmail(it.email)
+            pref.saveCreatedAt(it.createdAt)
+
+            if (it.role == "ADMIN") {
+
+                startActivity(
+                    Intent(
+                        this,
+                        AdminHomeActivity::class.java
+                    )
                 )
-            )
+
+            } else {
+
+                startActivity(
+                    Intent(
+                        this,
+                        UserDashboardActivity::class.java
+                    )
+                )
+
+            }
 
             finish()
         }
-
         viewModel.errorMessage.observe(this) {
 
             Toast.makeText(

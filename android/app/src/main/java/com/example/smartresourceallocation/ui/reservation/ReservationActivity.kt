@@ -15,7 +15,9 @@ import com.example.smartresourceallocation.viewmodel.ReservationViewModel
 import com.example.smartresourceallocation.model.CreateReservationRequest
 import com.example.smartresourceallocation.utils.SharedPrefManager
 import android.widget.Toast
+import com.bumptech.glide.Glide
 import com.example.smartresourceallocation.ui.dashboard.UserDashboardActivity
+import com.example.smartresourceallocation.utils.DateUtils
 import com.example.smartresourceallocation.viewmodel.ResourceViewModel
 
 class ReservationActivity : AppCompatActivity() {
@@ -95,6 +97,9 @@ class ReservationActivity : AppCompatActivity() {
         val location =
             intent.getStringExtra("location")
 
+        val imageUrl =
+            intent.getStringExtra("imageUrl")
+
         resourceId =
             intent.getStringExtra(
                 "resourceId"
@@ -116,35 +121,32 @@ class ReservationActivity : AppCompatActivity() {
         binding.tvResourceLocation.text =
             location
 
-        when (category) {
+        val placeholder = when (category) {
 
             "Meeting Room" ->
-                binding.imgResource.setImageResource(
-                    R.drawable.meeting
-                )
+                R.drawable.meeting
 
             "Laboratory Equipment" ->
-                binding.imgResource.setImageResource(
-                    R.drawable.lab
-                )
+                R.drawable.lab
 
             "Projector" ->
-                binding.imgResource.setImageResource(
-                    R.drawable.projector
-                )
+                R.drawable.projector
 
             "Sports Facility" ->
-                binding.imgResource.setImageResource(
-                    R.drawable.sports
-                )
+                R.drawable.sports
 
             "Study Area" ->
-                binding.imgResource.setImageResource(
-                    R.drawable.study
-                )
+                R.drawable.study
 
+            else ->
+                R.drawable.meeting
         }
 
+        Glide.with(this)
+            .load(imageUrl)
+            .placeholder(placeholder)
+            .error(placeholder)
+            .into(binding.imgResource)
         if (
             resourceType ==
             "CAPACITY_BASED"
@@ -195,13 +197,24 @@ class ReservationActivity : AppCompatActivity() {
             )
 
         val allocationList =
-            listOf(
-                "Select Allocation Preference",
-                "SPECIFIC_RESOURCE",
-                "ALTERNATE_RESOURCE",
-                "ALTERNATE_TIME",
-                "ALTERNATE_RESOURCE_AND_TIME"
-            )
+            if (resourceType == "CAPACITY_BASED") {
+
+                listOf(
+                    "Select Allocation Preference",
+                    "SPECIFIC_RESOURCE",
+                    "ALTERNATE_RESOURCE",
+                    "ALTERNATE_TIME"
+                )
+
+            } else {
+
+                listOf(
+                    "Select Allocation Preference",
+                    "SPECIFIC_RESOURCE",
+                    "ALTERNATE_TIME"
+                )
+
+            }
 
         val durationAdapter =
             ArrayAdapter(
@@ -448,6 +461,55 @@ class ReservationActivity : AppCompatActivity() {
 
                     return@setOnClickListener
                 }
+                if (binding.tvSelectedDate.text.toString().trim().isEmpty()
+                    || binding.tvSelectedDate.text.toString() == "Select Date") {
+
+                    Toast.makeText(
+                        this,
+                        "Please select a date",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    return@setOnClickListener
+                }
+
+                if (binding.tvSelectedTime.text.toString().trim().isEmpty()
+                    || binding.tvSelectedTime.text.toString() == "Select Time") {
+
+                    Toast.makeText(
+                        this,
+                        "Please select a start time",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    return@setOnClickListener
+                }
+                if (resourceType == "CAPACITY_BASED") {
+
+                    if (binding.etParticipantCount.text.toString().trim().isEmpty()) {
+
+                        Toast.makeText(
+                            this,
+                            "Please enter participant count",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        return@setOnClickListener
+                    }
+                }
+                if (resourceType == "QUANTITY_BASED") {
+
+                    if (binding.etQuantityRequired.text.toString().trim().isEmpty()) {
+
+                        Toast.makeText(
+                            this,
+                            "Please enter quantity required",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        return@setOnClickListener
+                    }
+                }
 
                 val participantCount =
                     if (
@@ -478,11 +540,6 @@ class ReservationActivity : AppCompatActivity() {
                     } else {
                         0
                     }
-                Toast.makeText(
-                    this,
-                    "Resource ID = $resourceId",
-                    Toast.LENGTH_LONG
-                ).show()
 
                 val request =
                     CreateReservationRequest(
@@ -654,7 +711,11 @@ class ReservationActivity : AppCompatActivity() {
 
         binding.tvSelectedDate.text =
             intent.getStringExtra("date")
-                ?.substring(0, 10)
+
+        resourceViewModel.getBookingStatus(
+            resourceId,
+            binding.tvSelectedDate.text.toString()
+        )
 
         binding.tvSelectedTime.text =
             intent.getStringExtra("time")
@@ -701,17 +762,22 @@ class ReservationActivity : AppCompatActivity() {
             )
 
         val allocationPosition =
-            when(allocation){
+            if (resourceType == "CAPACITY_BASED") {
 
-                "SPECIFIC_RESOURCE" -> 1
+                when (allocation) {
+                    "SPECIFIC_RESOURCE" -> 1
+                    "ALTERNATE_RESOURCE" -> 2
+                    "ALTERNATE_TIME" -> 3
+                    else -> 0
+                }
 
-                "ALTERNATE_RESOURCE" -> 2
+            } else {
 
-                "ALTERNATE_TIME" -> 3
-
-                "ALTERNATE_RESOURCE_AND_TIME" -> 4
-
-                else -> 0
+                when (allocation) {
+                    "SPECIFIC_RESOURCE" -> 1
+                    "ALTERNATE_TIME" -> 2
+                    else -> 0
+                }
 
             }
 

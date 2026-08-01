@@ -7,7 +7,10 @@ import com.example.smartresourceallocation.model.LoginResponse
 import com.example.smartresourceallocation.model.RegisterResponse
 import com.example.smartresourceallocation.repository.AuthRepository
 import kotlinx.coroutines.launch
-
+import com.example.smartresourceallocation.model.ForgotPasswordRequest
+import com.example.smartresourceallocation.model.VerifyOtpRequest
+import com.example.smartresourceallocation.model.ResetPasswordRequest
+import android.util.Log
 class AuthViewModel : ViewModel() {
 
     private val repository =
@@ -21,6 +24,17 @@ class AuthViewModel : ViewModel() {
 
     val errorMessage =
         MutableLiveData<String>()
+
+    val forgotPassword =
+        MutableLiveData<Boolean>()
+
+    val otpVerified =
+        MutableLiveData<Boolean>()
+
+    val passwordReset =
+        MutableLiveData<Boolean>()
+
+    var verifiedOtp = ""
 
     fun login(
         email: String,
@@ -56,7 +70,7 @@ class AuthViewModel : ViewModel() {
             } catch (e: Exception) {
 
                 errorMessage.value =
-                    e.message
+                    e.localizedMessage ?: "Something went wrong"
 
             }
 
@@ -103,12 +117,115 @@ class AuthViewModel : ViewModel() {
             } catch (e: Exception) {
 
                 errorMessage.value =
-                    e.message
+                    e.localizedMessage ?: "Something went wrong"
 
             }
 
         }
 
     }
+    fun forgotPassword(
+        request: ForgotPasswordRequest
+    ) {
+
+        viewModelScope.launch {
+
+            try {
+
+                val response =
+                    repository.forgotPassword(request)
+
+                if (response.isSuccessful) {
+
+                    forgotPassword.value = true
+
+                } else {
+
+                    errorMessage.value =
+                        response.errorBody()?.string()
+                            ?: "Failed to send OTP"
+
+                }
+
+            } catch (e: Exception) {
+
+                errorMessage.value =
+                    e.localizedMessage ?: "Something went wrong"
+
+            }
+        }
+
+    }
+    fun verifyOtp(
+        request: VerifyOtpRequest
+    ) {
+
+        viewModelScope.launch {
+
+            try {
+
+                val response =
+                    repository.verifyOtp(request)
+
+                if (response.isSuccessful) {
+
+                    verifiedOtp = request.otp
+
+                    otpVerified.value = true
+
+                } else {
+
+                    errorMessage.value =
+                        response.errorBody()?.string()
+                            ?: "OTP Verification Failed"
+
+                }
+
+            } catch (e: Exception) {
+
+                errorMessage.value =
+                    e.localizedMessage ?: "Something went wrong"
+
+            }
+
+        }
+
+    }
+    fun resetPassword(
+        request: ResetPasswordRequest
+    ) {
+
+        viewModelScope.launch {
+
+            try {
+
+                val response =
+                    repository.resetPassword(request)
+
+                if (response.isSuccessful) {
+
+                    verifiedOtp = ""
+
+                    passwordReset.value = true
+
+                }else {
+
+                    errorMessage.value =
+                        response.errorBody()?.string()
+                            ?: "Password Reset Failed"
+
+                }
+
+            } catch (e: Exception) {
+
+                errorMessage.value =
+                    e.localizedMessage ?: "Something went wrong"
+
+            }
+
+        }
+
+    }
+
 
 }

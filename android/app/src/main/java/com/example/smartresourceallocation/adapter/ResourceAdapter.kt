@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.smartresourceallocation.R
 import com.example.smartresourceallocation.databinding.ItemResourceBinding
 import com.example.smartresourceallocation.model.Resource
+import com.bumptech.glide.Glide
 
 class ResourceAdapter(
     private var resourceList: List<Resource>,
@@ -37,8 +38,7 @@ class ResourceAdapter(
 
         val resource = resourceList[position]
 
-        holder.binding.tvName.text =
-            resource.name
+        holder.binding.tvName.text = resource.name
 
         holder.binding.tvCategory.text =
             resource.category
@@ -71,50 +71,20 @@ class ResourceAdapter(
 
         }
 
-        when (resource.category) {
-
-            "Meeting Room" -> {
-                holder.binding.imgResource
-                    .setImageResource(
-                        R.drawable.meeting
-                    )
-            }
-
-            "Laboratory Equipment" -> {
-                holder.binding.imgResource
-                    .setImageResource(
-                        R.drawable.lab
-                    )
-            }
-
-            "Projector" -> {
-                holder.binding.imgResource
-                    .setImageResource(
-                        R.drawable.projector
-                    )
-            }
-
-            "Sports Facility" -> {
-                holder.binding.imgResource
-                    .setImageResource(
-                        R.drawable.sports
-                    )
-            }
-
-            "Study Area" -> {
-                holder.binding.imgResource
-                    .setImageResource(
-                        R.drawable.study
-                    )
-            }
-
-            else -> {
-                holder.binding.imgResource
-                    .setImageResource(
-                        R.drawable.meeting
-                    )
-            }
+        val placeholder = when (resource.category) {
+            "Meeting Room" -> R.drawable.meeting
+            "Laboratory Equipment" -> R.drawable.lab
+            "Projector" -> R.drawable.projector
+            "Sports Facility" -> R.drawable.sports
+            "Study Area" -> R.drawable.study
+            else -> R.drawable.meeting
         }
+
+        Glide.with(holder.binding.root.context)
+            .load(resource.imageUrl)
+            .placeholder(placeholder)
+            .error(placeholder)
+            .into(holder.binding.imgResource)
 
         holder.binding.cardResource
             .setOnClickListener {

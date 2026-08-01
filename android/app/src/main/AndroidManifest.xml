@@ -20,11 +20,7 @@
 
         <activity android:name=".ui.auth.LoginActivity"/>
 
-        <activity android:name=".ui.home.HomeActivity"/>
-
         <activity android:name=".ui.admin.AdminHomeActivity"/>
-
-        <activity android:name=".ui.user.UserHomeActivity"/>
 
         <activity android:name=".ui.resource.ResourceActivity"/>
 
@@ -34,7 +30,14 @@
 
         <activity android:name=".ui.dashboard.UserDashboardActivity"/>
 
+        <activity android:name=".ui.admin.fragments.resources.AdminResourceDetailsActivity"/>
+
+        <activity android:name=".ui.admin.fragments.reservations.AdminReservationDetailsActivity"/>
+
+
         <activity android:name=".ui.reservation.ReservationDetailsActivity"/>
+        
+        <activity android:name=".ui.admin.resources.AddEditResourceActivity"/>
 
 
 

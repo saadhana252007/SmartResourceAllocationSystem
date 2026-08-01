@@ -22,6 +22,14 @@ data class Resource(
 
     val bookingOpenBeforeHours: Int,
 
-    val bookingWindowDurationHours: Int
+    val bookingWindowDurationHours: Int,
+
+    val createdAt: String,
+
+    val updatedAt: String,
+
+    val workingStartTime: String,
+
+    val workingEndTime: String
 
 )

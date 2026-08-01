@@ -32,6 +32,8 @@ class ReservationViewModel : ViewModel() {
     val selectedReservation =
         MutableLiveData<Reservation>()
 
+
+
     fun createReservation(
         token: String,
         request: CreateReservationRequest
@@ -47,7 +49,10 @@ class ReservationViewModel : ViewModel() {
                         request
                     )
 
-                if (response.isSuccessful) {
+                if (
+                    response.isSuccessful &&
+                    response.body() != null
+                ) {
 
                     reservationResponse.value =
                         response.body()
@@ -63,7 +68,7 @@ class ReservationViewModel : ViewModel() {
             } catch (e: Exception) {
 
                 errorMessage.value =
-                    e.message
+                    e.localizedMessage ?: "Something went wrong"
 
             }
 
@@ -84,10 +89,13 @@ class ReservationViewModel : ViewModel() {
                         token
                     )
 
-                if (response.isSuccessful) {
+                if (
+                    response.isSuccessful &&
+                    response.body() != null
+                ) {
 
                     reservations.value =
-                        response.body()
+                        response.body()!!.reservations
 
                 } else {
 
@@ -99,7 +107,105 @@ class ReservationViewModel : ViewModel() {
             } catch (e: Exception) {
 
                 errorMessage.value =
-                    e.message
+                    e.localizedMessage ?: "Something went wrong"
+
+            }
+
+        }
+
+    }
+
+    fun getAllReservations(
+
+        token: String
+
+    ) {
+
+        viewModelScope.launch {
+
+            try {
+
+                val response =
+
+                    repository.getAllReservations(token)
+
+                if (
+
+                    response.isSuccessful &&
+
+                    response.body() != null
+
+                ) {
+
+                    reservations.value =
+                        response.body()!!.reservations
+
+                }
+
+                else {
+
+                    errorMessage.value =
+
+                        response.errorBody()?.string()
+
+                            ?: response.message()
+
+                }
+
+            }
+
+            catch (e: Exception) {
+
+                errorMessage.value =
+                    e.localizedMessage ?: "Something went wrong"
+
+            }
+
+        }
+
+    }
+    fun getReservationsForMyResources(
+
+        token: String
+
+    ) {
+
+        viewModelScope.launch {
+
+            try {
+
+                val response =
+
+                    repository.getReservationsForMyResources(
+                        token
+                    )
+
+                if (
+
+                    response.isSuccessful &&
+                    response.body() != null
+
+                ) {
+
+                    reservations.value =
+                        response.body()!!.reservations
+
+                }
+
+                else {
+
+                    errorMessage.value =
+                        response.errorBody()?.string()
+                            ?: response.message()
+
+                }
+
+            }
+
+            catch (e: Exception) {
+
+                errorMessage.value =
+                    e.localizedMessage ?: "Something went wrong"
 
             }
 
@@ -133,10 +239,10 @@ class ReservationViewModel : ViewModel() {
                             ?: response.message()
                 }
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
 
                 errorMessage.value =
-                    e.message
+                    e.localizedMessage ?: "Something went wrong"
 
             }
 
@@ -177,10 +283,10 @@ class ReservationViewModel : ViewModel() {
 
                 }
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
 
                 errorMessage.value =
-                    e.message
+                    e.localizedMessage ?: "Something went wrong"
 
             }
 
@@ -205,17 +311,25 @@ class ReservationViewModel : ViewModel() {
                         reservationId
                     )
 
-                if(response.isSuccessful){
+                if (
+                    response.isSuccessful &&
+                    response.body() != null
+                ) {
 
                     selectedReservation.value =
-                        response.body()
+                        response.body()!!.reservation
+
+                } else {
+
+                    errorMessage.value =
+                        response.message()
 
                 }
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
 
                 errorMessage.value =
-                    e.message
+                    e.localizedMessage ?: "Something went wrong"
 
             }
 

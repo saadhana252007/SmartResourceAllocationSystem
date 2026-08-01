@@ -1,11 +1,13 @@
 package com.example.smartresourceallocation.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smartresourceallocation.R
 import com.example.smartresourceallocation.databinding.ItemReservationBinding
 import com.example.smartresourceallocation.model.Reservation
+import com.example.smartresourceallocation.utils.DateUtils
 
 class ReservationAdapter(
 
@@ -56,18 +58,49 @@ class ReservationAdapter(
             reservationList[position]
 
         holder.binding.tvResourceName.text =
-            reservation.requestedResource.name
+            reservation.requestedResource?.name
+                ?: "${reservation.resourceCategory} - Resource Deleted"
+
+        if (
+            reservation.status == "ALTERNATIVE_APPROVED" &&
+            reservation.allocatedResource != null
+        ) {
+
+            holder.binding.tvAllocatedLabel.visibility =
+                View.VISIBLE
+
+            holder.binding.tvAllocatedResource.visibility =
+                View.VISIBLE
+
+            holder.binding.tvAllocatedResource.text =
+                reservation.allocatedResource.name
+
+        } else {
+
+            holder.binding.tvAllocatedLabel.visibility =
+                View.GONE
+
+            holder.binding.tvAllocatedResource.visibility =
+                View.GONE
+
+        }
 
         holder.binding.tvDate.text =
-            "Date: ${
-                reservation.date.substring(
-                    0,
-                    10
-                )
-            }"
+            "Date: ${DateUtils.formatReservationDate(reservation.date)}"
 
         holder.binding.tvTime.text =
-            "Time: ${reservation.startTime}"
+            if (
+                reservation.allocationType ==
+                "ALTERNATE_TIME"
+            ) {
+
+                "Allocated Time: ${reservation.startTime}"
+
+            } else {
+
+                "Time: ${reservation.startTime}"
+
+            }
 
         holder.binding.tvPurpose.text =
             "Purpose: ${reservation.purpose}"
@@ -132,7 +165,7 @@ class ReservationAdapter(
 
         }
 
-        holder.itemView.setOnClickListener {
+        holder.binding.root.setOnClickListener {
 
             onItemClick(
                 reservation

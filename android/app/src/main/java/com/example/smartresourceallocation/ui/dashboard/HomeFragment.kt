@@ -107,7 +107,8 @@ class HomeFragment : Fragment() {
             binding.tvApprovedReservations.text =
                 reservations.count {
 
-                    it.status == "APPROVED"
+                    it.status == "APPROVED" ||
+                            it.status == "ALTERNATIVE_APPROVED"
 
                 }.toString()
 
@@ -122,7 +123,7 @@ class HomeFragment : Fragment() {
 
                 binding.tvRecentReservation1.text =
                     formatReservation(
-                        reservations[0].requestedResource.name,
+                        reservations[0].requestedResource?.name ?: "Resource Deleted(${reservations[0].resourceCategory})",
                         reservations[0].status
                     )
 
@@ -132,7 +133,7 @@ class HomeFragment : Fragment() {
 
                 binding.tvRecentReservation2.text =
                     formatReservation(
-                        reservations[1].requestedResource.name,
+                        reservations[1].requestedResource?.name ?: "Resource Deleted(${reservations[1].resourceCategory})",
                         reservations[1].status
                     )
 
@@ -142,7 +143,7 @@ class HomeFragment : Fragment() {
 
                 binding.tvRecentReservation3.text =
                     formatReservation(
-                        reservations[2].requestedResource.name,
+                        reservations[2].requestedResource?.name ?: "Resource Deleted(${reservations[2].resourceCategory})",
                         reservations[2].status
                     )
 
@@ -156,17 +157,27 @@ class HomeFragment : Fragment() {
         status: String
     ): SpannableString {
 
-        val statusText = when(status){
+        val statusText = when (status) {
 
             "APPROVED" -> "✓ APPROVED"
 
-            "PENDING" -> "⏳ PENDING"
+            "ALTERNATIVE_APPROVED" ->
+                "✓ ALTERNATIVE APPROVED"
 
-            "WAITLISTED" -> "📋 WAITLISTED"
+            "PENDING" ->
+                "⏳ PENDING"
 
-            "CANCELLED" -> "✖ CANCELLED"
+            "WAITLISTED" ->
+                "📋 WAITLISTED"
 
-            else -> status
+            "REJECTED" ->
+                "✖ REJECTED"
+
+            "CANCELLED" ->
+                "✖ CANCELLED"
+
+            else ->
+                status
 
         }
 
@@ -186,6 +197,13 @@ class HomeFragment : Fragment() {
         )
 
         return span
+
+    }
+    override fun onResume() {
+
+        super.onResume()
+
+        loadReservations()
 
     }
 

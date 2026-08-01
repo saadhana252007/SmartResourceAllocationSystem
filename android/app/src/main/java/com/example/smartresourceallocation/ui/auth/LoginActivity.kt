@@ -10,10 +10,9 @@ import com.example.smartresourceallocation.viewmodel.AuthViewModel
 import android.content.Intent
 
 import com.example.smartresourceallocation.utils.SharedPrefManager
-import com.example.smartresourceallocation.ui.home.HomeActivity
 import com.example.smartresourceallocation.ui.admin.AdminHomeActivity
-import com.example.smartresourceallocation.ui.user.UserHomeActivity
 import com.example.smartresourceallocation.ui.dashboard.UserDashboardActivity
+import com.example.smartresourceallocation.ui.auth.ForgotPasswordBottomSheet
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -51,6 +50,30 @@ class LoginActivity : AppCompatActivity() {
                     .toString()
                     .trim()
 
+            if (email.isEmpty()) {
+
+                binding.etEmail.error = "Enter Email"
+
+                return@setOnClickListener
+
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+
+                binding.etEmail.error = "Invalid Email"
+
+                return@setOnClickListener
+
+            }
+
+            if (password.isEmpty()) {
+
+                binding.etPassword.error = "Enter Password"
+
+                return@setOnClickListener
+
+            }
+
             viewModel.login(
                 email,
                 password
@@ -59,12 +82,6 @@ class LoginActivity : AppCompatActivity() {
         }
 
         viewModel.loginResponse.observe(this) {
-
-            Toast.makeText(
-                this,
-                it.name,
-                Toast.LENGTH_LONG
-            ).show()
 
             val pref =
                 SharedPrefManager(this)
@@ -80,16 +97,18 @@ class LoginActivity : AppCompatActivity() {
             pref.saveUserName(
                 it.name
             )
+            pref.saveEmail(
+                it.email
+            )
+            pref.saveCreatedAt(
+                it.createdAt
+            )
 
             Toast.makeText(
                 this,
                 it.message,
                 Toast.LENGTH_SHORT
             ).show()
-
-
-            pref.saveToken(it.token)
-            pref.saveRole(it.role)
 
             if (it.role == "ADMIN") {
 
@@ -131,6 +150,17 @@ class LoginActivity : AppCompatActivity() {
                     this,
                     RegisterActivity::class.java
                 )
+            )
+
+        }
+        binding.tvForgot.setOnClickListener {
+
+            ForgotPasswordBottomSheet().show(
+
+                supportFragmentManager,
+
+                "ForgotPassword"
+
             )
 
         }

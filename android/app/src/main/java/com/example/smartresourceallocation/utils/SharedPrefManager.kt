@@ -34,13 +34,7 @@ class SharedPrefManager(
 
     }
 
-    fun clearToken() {
 
-        prefs.edit()
-            .remove("TOKEN")
-            .apply()
-
-    }
     fun saveRole(
         role: String
     ) {
@@ -84,11 +78,62 @@ class SharedPrefManager(
         )
 
     }
-    fun clearRole() {
+    fun clearSession() {
+
+        prefs.edit().clear().apply()
+
+    }
+
+    fun saveEmail(
+
+        email:String
+
+    ){
 
         prefs.edit()
-            .remove("ROLE")
+
+            .putString(
+
+                "EMAIL",
+
+                email
+
+            )
+
             .apply()
+
+    }
+
+    fun getEmail():String?{
+
+        return prefs.getString(
+
+            "EMAIL",
+
+            null
+
+        )
+
+    }
+    fun saveCreatedAt(
+        createdAt: String
+    ) {
+
+        prefs.edit()
+            .putString(
+                "CREATED_AT",
+                createdAt
+            )
+            .apply()
+
+    }
+
+    fun getCreatedAt(): String? {
+
+        return prefs.getString(
+            "CREATED_AT",
+            null
+        )
 
     }
 

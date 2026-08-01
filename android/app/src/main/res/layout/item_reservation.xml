@@ -25,6 +25,25 @@
             android:textStyle="bold"/>
 
         <TextView
+            android:id="@+id/tvAllocatedLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Allocated Resource"
+            android:textStyle="bold"
+            android:textColor="#2E7D32"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/tvAllocatedResource"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#2E7D32"
+            android:textStyle="bold"
+            android:layout_marginTop="2dp"
+            android:visibility="gone"/>
+
+        <TextView
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

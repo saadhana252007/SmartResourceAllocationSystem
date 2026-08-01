@@ -156,30 +156,30 @@ class ReservationFragment : Fragment() {
 
     }
 
-    private fun filterReservations(
-        status: String
-    ) {
+    private fun filterReservations(status: String) {
 
-        if(status == "ALL"){
+        val filteredList = when (status) {
 
-            adapter.updateList(
-                allReservations
-            )
+            "ALL" -> allReservations
 
-            return
+            "APPROVED" ->
+                allReservations.filter {
+
+                    it.status == "APPROVED" ||
+                            it.status == "ALTERNATIVE_APPROVED"
+
+                }
+
+            else ->
+                allReservations.filter {
+
+                    it.status == status
+
+                }
 
         }
 
-        val filteredList =
-            allReservations.filter {
-
-                it.status == status
-
-            }
-
-        adapter.updateList(
-            filteredList
-        )
+        adapter.updateList(filteredList)
 
     }
 
@@ -260,16 +260,27 @@ class ReservationFragment : Fragment() {
         reservation: Reservation
     ) {
 
-        val intent =
-            Intent(
-                requireContext(),
-                ReservationDetailsActivity::class.java
-            )
+        val resource = reservation.requestedResource
 
+        if (resource == null) {
+
+            Toast.makeText(
+                requireContext(),
+                "This resource has been deleted.",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            return
+        }
+
+        val intent = Intent(
+            requireContext(),
+            ReservationDetailsActivity::class.java
+        )
 
         intent.putExtra(
             "resourceName",
-            reservation.requestedResource.name
+            resource.name
         )
 
         intent.putExtra(
@@ -304,7 +315,7 @@ class ReservationFragment : Fragment() {
 
         intent.putExtra(
             "resourceId",
-            reservation.requestedResource._id
+            resource._id
         )
 
         intent.putExtra(
@@ -314,42 +325,42 @@ class ReservationFragment : Fragment() {
 
         intent.putExtra(
             "category",
-            reservation.requestedResource.category
+            resource.category
         )
 
         intent.putExtra(
             "description",
-            reservation.requestedResource.description
+            resource.description
         )
 
         intent.putExtra(
             "location",
-            reservation.requestedResource.location
+            resource.location
         )
 
         intent.putExtra(
             "resourceType",
-            reservation.requestedResource.resourceType
+            resource.resourceType
         )
 
         intent.putExtra(
             "capacity",
-            reservation.requestedResource.capacity
+            resource.capacity
         )
 
         intent.putExtra(
             "availableUnits",
-            reservation.requestedResource.availableUnits
+            resource.availableUnits
         )
 
         intent.putExtra(
             "bookingOpenBeforeHours",
-            reservation.requestedResource.bookingOpenBeforeHours
+            resource.bookingOpenBeforeHours
         )
 
         intent.putExtra(
             "bookingWindowDurationHours",
-            reservation.requestedResource.bookingWindowDurationHours
+            resource.bookingWindowDurationHours
         )
 
         intent.putExtra(
@@ -363,48 +374,8 @@ class ReservationFragment : Fragment() {
         )
 
         intent.putExtra(
-            "category",
-            reservation.requestedResource.category
-        )
-
-        intent.putExtra(
-            "description",
-            reservation.requestedResource.description
-        )
-
-        intent.putExtra(
-            "location",
-            reservation.requestedResource.location
-        )
-
-        intent.putExtra(
-            "resourceType",
-            reservation.requestedResource.resourceType
-        )
-
-        intent.putExtra(
-            "capacity",
-            reservation.requestedResource.capacity
-        )
-
-        intent.putExtra(
-            "availableUnits",
-            reservation.requestedResource.availableUnits
-        )
-
-        intent.putExtra(
-            "bookingOpenBeforeHours",
-            reservation.requestedResource.bookingOpenBeforeHours
-        )
-
-        intent.putExtra(
-            "bookingWindowDurationHours",
-            reservation.requestedResource.bookingWindowDurationHours
-        )
-
-        intent.putExtra(
-            "reservationId",
-            reservation._id
+            "imageUrl",
+            resource.imageUrl
         )
 
         startActivity(intent)

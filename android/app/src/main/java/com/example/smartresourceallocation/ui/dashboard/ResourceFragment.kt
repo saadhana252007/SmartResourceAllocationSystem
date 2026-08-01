@@ -13,7 +13,6 @@ import com.example.smartresourceallocation.adapter.ResourceAdapter
 import com.example.smartresourceallocation.databinding.FragmentResourceBinding
 import com.example.smartresourceallocation.ui.resource.ResourceDetailsActivity
 import com.example.smartresourceallocation.viewmodel.ResourceViewModel
-
 class ResourceFragment : Fragment() {
 
     private var _binding:
@@ -125,6 +124,10 @@ class ResourceFragment : Fragment() {
                     "resourceId",
                     resource._id
                 )
+                intent.putExtra(
+                    "imageUrl",
+                    resource.imageUrl
+                )
 
                 startActivity(intent)
 
@@ -178,6 +181,8 @@ class ResourceFragment : Fragment() {
                 it,
                 Toast.LENGTH_SHORT
             ).show()
+
+
 
         }
 

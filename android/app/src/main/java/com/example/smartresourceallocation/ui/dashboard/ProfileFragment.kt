@@ -11,6 +11,11 @@ import com.example.smartresourceallocation.databinding.FragmentProfileBinding
 import com.example.smartresourceallocation.ui.auth.LoginActivity
 import com.example.smartresourceallocation.utils.SharedPrefManager
 import com.example.smartresourceallocation.viewmodel.ReservationViewModel
+import android.widget.Toast
+import com.example.smartresourceallocation.ui.admin.bottomsheet.ChangePasswordBottomSheet
+import com.example.smartresourceallocation.ui.admin.bottomsheet.EditProfileBottomSheet
+import com.example.smartresourceallocation.utils.DateUtils
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class ProfileFragment : Fragment() {
 
@@ -61,6 +66,8 @@ class ProfileFragment : Fragment() {
 
         loadReservations()
 
+        setupClickListeners()
+
         binding.btnLogout.setOnClickListener {
 
             logout()
@@ -71,28 +78,38 @@ class ProfileFragment : Fragment() {
 
     private fun setupProfile() {
 
-        val pref =
-            SharedPrefManager(
-                requireContext()
-            )
+        val pref = SharedPrefManager(requireContext())
 
         binding.tvUserName.text =
             pref.getUserName() ?: "User"
 
+        binding.tvEmail.text =
+            pref.getEmail() ?: "Email"
+
         binding.tvRole.text =
-            pref.getRole() ?: "USER"
-
-        if(pref.getRole() == "ADMIN"){
-
-            binding.tvRoleBadge.text =
-                "RESOURCE ADMIN"
-
-        }else{
-
-            binding.tvRoleBadge.text =
+            if (pref.getRole() == "USER")
                 "RESOURCE USER"
+            else
+                pref.getRole()
 
-        }
+        binding.tvFullName.text =
+            "👤 Full Name : ${pref.getUserName()}"
+
+        binding.tvProfileEmail.text =
+            "📧 Email : ${pref.getEmail()}"
+
+        binding.tvProfileRole.text =
+            "🛡 Role : ${pref.getRole()}"
+
+        binding.tvCreatedDate.text =
+            "📅 Account Created : ${
+                pref.getCreatedAt()?.let {
+                    DateUtils.formatCreatedDate(it)
+                } ?: "--"
+            }"
+
+        binding.tvRoleBadge.text =
+            "RESOURCE USER"
 
     }
 
@@ -115,45 +132,129 @@ class ProfileFragment : Fragment() {
 
     private fun observeReservations() {
 
-        viewModel.reservations.observe(
-            viewLifecycleOwner
-        ) { reservations ->
+        viewModel.reservations.observe(viewLifecycleOwner) { reservations ->
 
-            binding.tvTotalMade.text =
+            binding.tvResourcesManaged.text =
                 reservations.size.toString()
 
-            binding.tvApprovedCount.text =
+            val approved =
                 reservations.count {
 
-                    it.status == "APPROVED"
+                    it.status == "APPROVED" ||
+                            it.status == "ALTERNATIVE_APPROVED"
 
-                }.toString()
+                }
 
-            val categoryCount =
+            binding.tvReservationsProcessed.text =
+                approved.toString()
+
+            val pending =
+                reservations.count {
+
+                    it.status == "PENDING"
+
+                }
+
+            binding.tvPendingRequests.text =
+                pending.toString()
+
+            val categoryMap =
                 mutableMapOf<String, Int>()
 
             reservations.forEach {
 
                 val category =
-                    it.requestedResource.category
+                    it.requestedResource?.category
+                        ?: it.resourceCategory
 
-                categoryCount[category] =
-                    categoryCount.getOrDefault(
+                categoryMap[category] =
+                    categoryMap.getOrDefault(
                         category,
                         0
                     ) + 1
 
             }
 
-            val mostReservedCategory =
-                categoryCount.maxByOrNull {
+            binding.tvSystemUtilization.text =
+                categoryMap.maxByOrNull {
 
                     it.value
 
                 }?.key ?: "-"
 
-            binding.tvMostReserved.text =
-                mostReservedCategory
+        }
+
+    }
+
+    private fun setupClickListeners() {
+
+        binding.tvEditProfile.setOnClickListener {
+
+            EditProfileBottomSheet().show(
+
+                parentFragmentManager,
+
+                "EditProfile"
+
+            )
+
+        }
+
+        binding.tvChangePassword.setOnClickListener {
+
+            ChangePasswordBottomSheet().show(
+
+                parentFragmentManager,
+
+                "ChangePassword"
+
+            )
+
+        }
+
+        binding.tvPrivacyPolicy.setOnClickListener {
+
+            MaterialAlertDialogBuilder(requireContext())
+
+                .setTitle("Privacy Policy")
+
+                .setMessage(
+                    "Your information is securely stored. Passwords are encrypted and protected using JWT authentication."
+                )
+
+                .setPositiveButton("OK", null)
+
+                .show()
+
+        }
+
+        binding.tvAbout.setOnClickListener {
+
+            MaterialAlertDialogBuilder(requireContext())
+
+                .setTitle("About")
+
+                .setMessage(
+                    "OPTI SOURCE\n\nSmart Resource Allocation System\n\nVersion 1.0\n\nDeveloped using Kotlin, XML, Node.js and MongoDB."
+                )
+
+                .setPositiveButton("OK", null)
+
+                .show()
+
+        }
+
+        binding.tvVersion.setOnClickListener {
+
+            MaterialAlertDialogBuilder(requireContext())
+
+                .setTitle("Application Version")
+
+                .setMessage("Version 1.0.0")
+
+                .setPositiveButton("OK", null)
+
+                .show()
 
         }
 
@@ -161,31 +262,53 @@ class ProfileFragment : Fragment() {
 
     private fun logout() {
 
-        val pref =
-            SharedPrefManager(
-                requireContext()
-            )
+        MaterialAlertDialogBuilder(requireContext())
 
-        pref.clearToken()
+            .setTitle("Logout")
 
-        pref.clearRole()
+            .setMessage("Are you sure you want to logout?")
 
-        startActivity(
-            Intent(
-                requireContext(),
-                LoginActivity::class.java
-            )
-        )
+            .setPositiveButton("Logout") { _, _ ->
 
-        requireActivity().finish()
+                val pref =
+                    SharedPrefManager(requireContext())
+
+                pref.clearSession()
+
+                val intent = Intent(
+                    requireContext(),
+                    LoginActivity::class.java
+                )
+
+                intent.flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                startActivity(intent)
+
+                requireActivity().finish()
+
+            }
+
+            .setNegativeButton("Cancel", null)
+
+            .show()
 
     }
-
     override fun onDestroyView() {
 
         super.onDestroyView()
 
         _binding = null
+
+    }
+    override fun onResume() {
+
+        super.onResume()
+
+        setupProfile()
+
+        loadReservations()
 
     }
 
