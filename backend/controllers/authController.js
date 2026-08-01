@@ -346,17 +346,20 @@ const forgotPassword = async (req, res) => {
 
         console.log("Sending email...");
 
-        const info = await transporter.sendMail({
+const info = await transporter.sendMail({
 
-            from: process.env.EMAIL_USER,
+    from: process.env.EMAIL_USER,
 
-            to: email,
+    to: email,
 
-            subject: "Password Reset OTP",
+    subject: "Password Reset OTP",
 
-            text: `Your OTP is ${otp}`
+    text: `Your OTP is ${otp}`
 
-        });
+});
+
+console.log("AFTER SENDMAIL");
+console.log(info);
 
         console.log("Email sent:", info);
 
