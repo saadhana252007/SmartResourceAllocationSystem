@@ -69,17 +69,19 @@ const reservationSchema = new mongoose.Schema(
       min: 0
     },
 
-    purpose: {
-      type: String,
-      enum: [
-        "Academic",
-        "Research",
-        "Project Work",
-        "Club Activity",
-        "Personal"
-      ],
-      required: true
-    },
+    purposeDescription: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 500
+},
+
+purposeScore: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+},
 
     status: {
         type: String,

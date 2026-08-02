@@ -1,5 +1,9 @@
 const Reservation = require("../models/Reservation");
 
+const {
+    calculatePurposeScores
+} = require("../services/geminiService");
+
 function convertToMinutes(time){
 
     if (!time) return 0;
@@ -144,20 +148,6 @@ const calculateFairUsageScore = async (
         100 - recentAllocations * 5
     );
 };
-const calculatePurposeScore = (
-    purpose
-) => {
-    const purposeWeights = {
-        "Academic": 100,
-        "Research": 90,
-        "Project Work": 80,
-        "Club Activity": 70,
-        "Personal": 50
-    };
-    return (
-        purposeWeights[purpose] || 50
-    );
-};
 const calculateFinalScore = async (
     reservation,
     resource
@@ -172,9 +162,7 @@ const calculateFinalScore = async (
             reservation.user
         );
     const purposeScore =
-        calculatePurposeScore(
-            reservation.purpose
-        );
+    reservation.purposeScore;
     return (
         capacityScore * 0.5 +
         fairUsageScore * 0.3 +
@@ -384,10 +372,8 @@ async (
             reservation.user
         );
 
-    const purposeScore =
-        calculatePurposeScore(
-            reservation.purpose
-        );
+   const purposeScore =
+    reservation.purposeScore;
 
     return (
 
@@ -1321,10 +1307,74 @@ await executeAlternativeAllocations(
 
 };
 
+const generatePurposeScores = async (
+    reservations
+) => {
+
+    const pendingReservations =
+        reservations.filter(
+            reservation =>
+                reservation.purposeScore === 0
+        );
+
+    if (!pendingReservations.length) {
+
+        return;
+
+    }
+
+    const scores =
+        await calculatePurposeScores(
+            pendingReservations
+        );
+
+        if (scores.length !== pendingReservations.length) {
+
+    throw new Error(
+        "Gemini did not return scores for all reservations."
+    );
+
+}
+
+    for (const item of scores) {
+
+        const reservation =
+            pendingReservations.find(
+
+                reservation =>
+
+                    reservation._id.toString() ===
+                    item.reservationId
+
+            );
+
+        if (!reservation) {
+
+    throw new Error(
+
+        `Unknown reservationId returned by Gemini: ${item.reservationId}`
+
+    );
+
+}
+
+        reservation.purposeScore =
+            item.score;
+
+        await reservation.save();
+
+    }
+
+};
+
 const runAllocationWorkflow = async (
     reservations,
     resources
 ) => {
+
+    await generatePurposeScores(
+    reservations
+);
 
     const capacityReservations =
         reservations.filter(
@@ -1403,8 +1453,6 @@ module.exports = {
     calculateCapacityScore,
 
     calculateFairUsageScore,
-
-    calculatePurposeScore,
 
     calculateFinalScore,
 
