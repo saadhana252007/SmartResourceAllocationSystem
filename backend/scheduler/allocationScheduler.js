@@ -60,36 +60,45 @@ console.log("Scheduler Started");
                 if (reservations.length === 0)
                     continue;
 
-                const groupedReservations = {};
+const groupedReservations = {};
 
-                for (const reservation of reservations) {
+for (const reservation of reservations) {
 
-                    const bookingDate = new Date(reservation.date);
+    const bookingDate = new Date(reservation.date);
 
-const key =
-    bookingDate.getFullYear() + "-" +
-    String(bookingDate.getMonth() + 1).padStart(2, "0") + "-" +
-    String(bookingDate.getDate()).padStart(2, "0");
+    const closeTime = getBookingCloseTime(
+        resource,
+        bookingDate
+    );
 
-                    if (!groupedReservations[key]) {
+    const key =
+        resource.category + "_" +
+        bookingDate.getFullYear() + "-" +
+        String(bookingDate.getMonth() + 1).padStart(2, "0") + "-" +
+        String(bookingDate.getDate()).padStart(2, "0") + "_" +
+        closeTime.getTime();
 
-                        groupedReservations[key] = [];
+    if (!groupedReservations[key]) {
 
-                    }
+        groupedReservations[key] = {
 
-                    groupedReservations[key].push(reservation);
+            bookingDate,
 
-                }
+            closeTime
 
-                for (const bookingDate of Object.keys(groupedReservations)) {
+        };
 
-                    const closeTime = getBookingCloseTime(
+    }
 
-                        resource,
+}
 
-                        bookingDate
+                for (const key of Object.keys(groupedReservations)) {
+                    const bookingDate =
+    groupedReservations[key].bookingDate;
 
-                    );
+const closeTime =
+    groupedReservations[key].closeTime;
+
 
                     console.log(
                         `Booking Date : ${bookingDate}`
@@ -109,12 +118,57 @@ const key =
 
                     }
 
-                    const reservationsToProcess =
-                        groupedReservations[bookingDate];
+                   const allReservations =
+await Reservation.find({
+
+    resourceCategory: resource.category,
+
+    date: bookingDate,
+
+    status: "PENDING",
+
+    allocationProcessed: false
+
+}).populate("requestedResource");
+
+const reservationsToProcess =
+allReservations.filter(reservation => {
+
+    const reservationCloseTime =
+        getBookingCloseTime(
+
+            reservation.requestedResource,
+
+            reservation.date
+
+        );
+
+    return (
+
+        reservationCloseTime.getTime() ===
+        closeTime.getTime()
+
+    );
+
+});
+
+if (reservationsToProcess.length === 0) {
+
+    continue;
+
+}
 
                     console.log(
                         `Running allocation for ${reservationsToProcess.length} reservation(s)`
                     );
+
+                    console.log(
+    reservationsToProcess.map(r => ({
+        resource: r.requestedResource.name,
+        user: r.user,
+        purpose: r.purposeDescription
+    }))
+);
 
                     const categoryResources = await Resource.find({
     category: resource.category
@@ -153,9 +207,9 @@ await runAllocationWorkflow(
 
                     );
 
-                    console.log(
-                        `Allocation completed for ${bookingDate}`
-                    );
+                   console.log(
+    `Allocation completed for ${key}`
+);
 
                 }
 

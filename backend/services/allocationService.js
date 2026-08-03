@@ -169,34 +169,58 @@ const calculateFinalScore = async (
         purposeScore * 0.2
     );
 };
+function convertTimeToMinutes(time) {
+
+    const [hours, minutes] = time
+        .split(":")
+        .map(Number);
+
+    return (hours * 60) + minutes;
+
+}
+
+function hasTimeConflict(existingStart, existingEnd, newStart, newEnd) {
+
+    return newStart < existingEnd &&
+           existingStart < newEnd;
+
+}
+
 const allocateCapacityResources = async (
     reservations,
     resources
 ) => {
+
     const scoredReservations = [];
+
     for (const reservation of reservations) {
+
         const requestedResource =
             resources.find(
                 resource =>
                     resource._id.toString() ===
                     reservation.requestedResource._id.toString()
             );
+
         if (
             !requestedResource ||
             requestedResource.capacity <
-            reservation.participantCount
+                reservation.participantCount
         ) {
             continue;
         }
+
         const score =
             await calculateFinalScore(
                 reservation,
                 requestedResource
             );
+
         scoredReservations.push({
             reservation,
             score
         });
+
     }
 
     scoredReservations.sort(
@@ -207,58 +231,118 @@ const allocateCapacityResources = async (
 
     const failures = [];
 
-    const allocatedResources =
-        new Set();
+    const allocatedSlots = {};
 
     for (const item of scoredReservations) {
 
-        const requestedResourceId =
-            item.reservation
-                .requestedResource
-                ._id
-                .toString();
+        const reservation =
+            item.reservation;
+
+        const resource =
+            resources.find(
+                resource =>
+                    resource._id.toString() ===
+                    reservation.requestedResource._id.toString()
+            );
 
         if (
-            allocatedResources.has(
-                requestedResourceId
-            )
+            !resource ||
+            resource.capacity <
+                reservation.participantCount
         ) {
 
             failures.push({
-
-                reservation:
-                    item.reservation,
-
-                score:
-                    item.score
-
+                reservation,
+                score: item.score
             });
 
             continue;
 
         }
 
-        const resource =
-            resources.find(
-                resource =>
-                    resource._id.toString() ===
-                    requestedResourceId
+        const resourceId =
+            resource._id.toString();
+
+        if (!allocatedSlots[resourceId]) {
+
+            allocatedSlots[resourceId] = [];
+
+        }
+        if (allocatedSlots[resourceId].length === 0) {
+
+    const existingReservations =
+        await Reservation.find({
+
+            requestedResource: resource._id,
+
+            date: reservation.date,
+
+            status: {
+                $in: [
+                    "APPROVED",
+                    "ALTERNATIVE_APPROVED"
+                ]
+            }
+
+        });
+
+    for (const existing of existingReservations) {
+
+        const actualStart =
+            existing.alternativeStartTime ||
+            existing.startTime;
+
+        allocatedSlots[resourceId].push({
+
+            start:
+                convertTimeToMinutes(actualStart),
+
+            end:
+                convertTimeToMinutes(actualStart) +
+                existing.durationHours * 60
+
+        });
+
+    }
+
+}
+
+        const startMinutes =
+            convertTimeToMinutes(
+                reservation.startTime
             );
 
-        if (
-            !resource ||
-            resource.capacity <
-            item.reservation
-                .participantCount
-        ) {
+        const endMinutes =
+            startMinutes +
+            (reservation.durationHours * 60);
+
+        let conflict = false;
+
+        for (const slot of allocatedSlots[resourceId]) {
+
+            if (
+                hasTimeConflict(
+                    slot.start,
+                    slot.end,
+                    startMinutes,
+                    endMinutes
+                )
+            ) {
+
+                conflict = true;
+                break;
+
+            }
+
+        }
+
+        if (conflict) {
 
             failures.push({
 
-                reservation:
-                    item.reservation,
+                reservation,
 
-                score:
-                    item.score
+                score: item.score
 
             });
 
@@ -269,7 +353,7 @@ const allocateCapacityResources = async (
         allocations.push({
 
             reservation:
-                item.reservation._id,
+                reservation._id,
 
             resource:
                 resource._id,
@@ -279,15 +363,22 @@ const allocateCapacityResources = async (
 
         });
 
-        allocatedResources.add(
-            requestedResourceId
-        );
+        allocatedSlots[resourceId].push({
+
+            start: startMinutes,
+
+            end: endMinutes
+
+        });
 
     }
 
     return {
+
         allocations,
+
         failures
+
     };
 
 };
@@ -629,7 +720,6 @@ const executeWaitlist = async (
     );
 
 };
-
 const promoteWaitlistedReservations = async (
     resourceId,
     bookingDate,
@@ -637,25 +727,66 @@ const promoteWaitlistedReservations = async (
 ) => {
 
     const waitlistedReservations =
-    await Reservation.find({
+        await Reservation.find({
 
-        requestedResource:
-            resourceId,
+            requestedResource: resourceId,
 
-        date:
-            bookingDate,
+            date: bookingDate,
 
-        status:
-            "WAITLISTED"
+            status: "WAITLISTED"
 
-    })
-    .sort({
+        }).sort({
 
-        score: -1,
+            score: -1,
 
-        createdAt: 1
+            createdAt: 1
 
-    });
+        });
+
+    const existingReservations =
+        await Reservation.find({
+
+            requestedResource: resourceId,
+
+            date: bookingDate,
+
+            status: {
+
+                $in: [
+
+                    "APPROVED",
+
+                    "ALTERNATIVE_APPROVED"
+
+                ]
+
+            }
+
+        });
+
+    const occupiedSlots = [];
+
+    for (const reservation of existingReservations) {
+
+        const actualStart =
+            reservation.alternativeStartTime ||
+            reservation.startTime;
+
+        occupiedSlots.push({
+
+            start:
+                convertToMinutes(actualStart),
+
+            end:
+                convertToMinutes(actualStart) +
+                reservation.durationHours * 60,
+
+            units:
+                reservation.quantityRequired || 1
+
+        });
+
+    }
 
     const promoted = [];
 
@@ -664,47 +795,97 @@ const promoteWaitlistedReservations = async (
         const requiredUnits =
             reservation.quantityRequired || 1;
 
-        if (
-            requiredUnits <=
-            availableUnits
-        ) {
-
-            promoted.push(
-                reservation._id
+        const start =
+            convertToMinutes(
+                reservation.startTime
             );
 
-            availableUnits -=
-                requiredUnits;
+        const end =
+            start +
+            reservation.durationHours * 60;
+
+        let usedUnits = 0;
+
+        for (const slot of occupiedSlots) {
+
+            if (
+
+                hasTimeConflict(
+
+                    slot.start,
+
+                    slot.end,
+
+                    start,
+
+                    end
+
+                )
+
+            ) {
+
+                usedUnits += slot.units;
+
+            }
+
+        }
+
+        if (
+
+            availableUnits - usedUnits >=
+            requiredUnits
+
+        ) {
+
+            promoted.push(reservation._id);
+
+            occupiedSlots.push({
+
+                start,
+
+                end,
+
+                units: requiredUnits
+
+            });
 
         }
 
     }
 
     if (!promoted.length) {
+
         return;
+
     }
 
     await Reservation.updateMany(
 
         {
+
             _id: {
+
                 $in: promoted
+
             }
+
         },
 
         {
+
             $set: {
 
-    allocatedResource:
-        resourceId,
+                allocatedResource:
+                    resourceId,
 
-    status:
-        "APPROVED",
+                status:
+                    "APPROVED",
 
-    allocatedAt:
-        new Date()
+                allocatedAt:
+                    new Date()
 
-}
+            }
+
         }
 
     );
@@ -778,78 +959,196 @@ const rejectExpiredWaitlistedReservations = async () => {
 
 const findAlternativeResource = async (
     reservation,
-    resources
+    resources,
+    temporaryAllocations = []
 ) => {
 
-    const alternatives = resources
+    const requestStart =
+        convertToMinutes(
+            reservation.startTime
+        );
 
-        .filter(resource => {
+    const requestEnd =
+        requestStart +
+        reservation.durationHours * 60;
+
+    const alternatives = [];
+
+    for (const resource of resources) {
+
+        if (
+            resource._id.toString() ===
+            reservation.requestedResource._id.toString()
+        ) {
+            continue;
+        }
+
+        if (
+            resource.category !==
+            reservation.requestedResource.category
+        ) {
+            continue;
+        }
+
+        if (
+            resource.resourceType ===
+            "CAPACITY_BASED"
+        ) {
 
             if (
-        resource._id.toString() ===
-        reservation.requestedResource._id.toString()
-    ) {
-        return false;
-    }
-
-    if (
-        resource.category !==
-        reservation.requestedResource.category
-    ) {
-        return false;
-    }
-
-            if (
-                resource.resourceType ===
-                "CAPACITY_BASED"
+                resource.capacity <
+                reservation.participantCount
             ) {
-
-                return (
-                    resource.capacity >=
-                    reservation.participantCount
-                );
-
+                continue;
             }
 
-            return (
+        } else {
 
-                resource.availableUnits >=
+            if (
+                resource.availableUnits <
                 reservation.quantityRequired
+            ) {
+                continue;
+            }
 
-            );
+        }
 
-        })
+        const existingReservations =
+            await Reservation.find({
 
-        .sort((a, b) => {
+                requestedResource: resource._id,
+
+                date: reservation.date,
+
+                status: {
+
+                    $in: [
+
+                        "APPROVED",
+
+                        "ALTERNATIVE_APPROVED"
+
+                    ]
+
+                }
+
+            });
+
+        let conflict = false;
+
+        for (const existing of existingReservations) {
+
+            const existingStart =
+                convertToMinutes(
+
+                    existing.alternativeStartTime ||
+
+                    existing.startTime
+
+                );
+
+            const existingEnd =
+                existingStart +
+                existing.durationHours * 60;
 
             if (
-                a.resourceType ===
-                "CAPACITY_BASED"
+                hasTimeConflict(
+
+                    existingStart,
+
+                    existingEnd,
+
+                    requestStart,
+
+                    requestEnd
+
+                )
             ) {
 
-                return (
-                    a.capacity -
-                    b.capacity
-                );
+                conflict = true;
+
+                break;
 
             }
 
-            return (
+        }
 
-                a.availableUnits -
-                b.availableUnits
 
-            );
 
-        });
+        if (!conflict) {
 
-    if (
-        alternatives.length === 0
-    ) {
+            for (const allocation of temporaryAllocations) {
+
+                if (
+
+                    allocation.resource.toString() !==
+                    resource._id.toString()
+
+                ) {
+                    continue;
+                }
+
+                if (
+
+                    hasTimeConflict(
+
+                        allocation.start,
+
+                        allocation.end,
+
+                        requestStart,
+
+                        requestEnd
+
+                    )
+
+                ) {
+
+                    conflict = true;
+
+                    break;
+
+                }
+
+            }
+
+        }
+
+        if (!conflict) {
+
+            alternatives.push(resource);
+
+        }
+
+    }
+
+    if (!alternatives.length) {
 
         return null;
 
     }
+
+    alternatives.sort((a, b) => {
+
+        if (
+
+            a.resourceType ===
+            "CAPACITY_BASED"
+
+        ) {
+
+            return a.capacity - b.capacity;
+
+        }
+
+        return (
+
+            a.availableUnits -
+            b.availableUnits
+
+        );
+
+    });
 
     return alternatives[0];
 
@@ -927,6 +1226,9 @@ async (
 
     const allocations = [];
 
+    const temporaryAllocations = [];
+
+
     reservations.sort(
         (a, b) => b.score - a.score
     );
@@ -936,11 +1238,20 @@ async (
         of reservations
     ) {
 
-        const alternative =
+      const alternative =
     await findAlternativeResource(
         reservation,
-        resources
+        resources,
+        temporaryAllocations
     );
+    const requestStart =
+    convertToMinutes(
+        reservation.startTime
+    );
+
+const requestEnd =
+    requestStart +
+    reservation.durationHours * 60;
 
         if (!alternative) {
 
@@ -957,20 +1268,23 @@ async (
                 alternative._id
 
         });
+        temporaryAllocations.push({
 
-        if (
+    resource:
+        alternative._id,
+
+    start:
+        requestStart,
+
+    end:
+        requestEnd
+
+});
+
+if (
     alternative.resourceType ===
-    "CAPACITY_BASED"
+    "QUANTITY_BASED"
 ) {
-
-    resources =
-        resources.filter(
-            r =>
-                r._id.toString() !==
-                alternative._id.toString()
-        );
-
-} else {
 
     alternative.availableUnits -=
         reservation.quantityRequired;
@@ -978,6 +1292,7 @@ async (
 }
 
     }
+    
 
     return allocations;
 
@@ -1214,19 +1529,6 @@ const runCapacityWorkflow = async (
 
     ];
 
-    const allocatedResourceIds =
-        new Set(
-            allocations.map(
-                allocation =>
-                    allocation.resource.toString()
-            )
-        );
-
-    const availableResources =
-    getAvailableAlternativeResources(
-        resources,
-        allocatedResourceIds
-    );
 
 const round2Allocations =
     await allocateAlternativeResources(
@@ -1240,7 +1542,7 @@ const round2Allocations =
 
         }),
 
-        availableResources
+        resources
 
     );
 
@@ -1456,51 +1758,76 @@ const runAllocationWorkflow = async (
     }
 if (quantityReservations.length > 0) {
 
-    const quantityResource =
-        quantityReservations[0].requestedResource;
+    const groupedQuantityReservations = {};
 
-    const {
-        allocations,
-        failures
-    } =
-    await allocateQuantityResources(
-        quantityReservations,
-        quantityResource
-    );
+    for (const reservation of quantityReservations) {
 
-    await executeAllocations(
-        allocations
-    );
+        const resourceId =
+            reservation.requestedResource._id.toString();
 
-    const {
-        specificResource,
-        alternateTime
-    } = splitFailedReservations(
-        failures
-    );
+        if (!groupedQuantityReservations[resourceId]) {
 
-    await executeWaitlist(
-        specificResource
-    );
+            groupedQuantityReservations[resourceId] = [];
 
-    const {
-        allocations: round2Allocations,
-        remainingFailures
-    } =
-    await allocateAlternativeTime(
-        alternateTime
-    );
+        }
 
-    await executeAlternativeTimeAllocations(
-        round2Allocations
-    );
+        groupedQuantityReservations[resourceId].push(
+            reservation
+        );
 
-    await executeWaitlist(
-        remainingFailures
-    );
+    }
+
+    for (const resourceId of Object.keys(groupedQuantityReservations)) {
+
+        const reservationsForResource =
+            groupedQuantityReservations[resourceId];
+
+        const quantityResource =
+            reservationsForResource[0].requestedResource;
+
+        const {
+            allocations,
+            failures
+        } =
+        await allocateQuantityResources(
+            reservationsForResource,
+            quantityResource
+        );
+
+        await executeAllocations(
+            allocations
+        );
+
+        const {
+            specificResource,
+            alternateTime
+        } = splitFailedReservations(
+            failures
+        );
+
+        await executeWaitlist(
+            specificResource
+        );
+
+        const {
+            allocations: round2Allocations,
+            remainingFailures
+        } =
+        await allocateAlternativeTime(
+            alternateTime
+        );
+
+        await executeAlternativeTimeAllocations(
+            round2Allocations
+        );
+
+        await executeWaitlist(
+            remainingFailures
+        );
+
+    }
 
 }
-
 }
 
 module.exports = {
