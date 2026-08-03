@@ -1,8 +1,7 @@
 const Resource = require("../models/Resource");
 const Reservation = require("../models/Reservation");
 
-console.log("RESOURCE CONTROLLER VERSION 2");
-
+const moment = require("moment-timezone");
 
 const createResource = async (req, res) => {
 
@@ -142,36 +141,19 @@ const getBookingStatus = async (req, res) => {
 
         }
 
-        const [year, month, day] =
-            date.split("-").map(Number);
+        const bookingDate = moment
+    .tz(date, "YYYY-MM-DD", "Asia/Kolkata")
+    .startOf("day");
 
-        const bookingDate = new Date(
-            year,
-            month - 1,
-            day,
-            0,
-            0,
-            0,
-            0
-        );
+const openTime = bookingDate
+    .clone()
+    .subtract(resource.bookingOpenBeforeHours, "hours");
 
-        const openTime =
-            new Date(bookingDate);
+const closeTime = openTime
+    .clone()
+    .add(resource.bookingWindowDurationHours, "hours");
 
-        openTime.setHours(
-            openTime.getHours() -
-            resource.bookingOpenBeforeHours
-        );
-
-        const closeTime =
-            new Date(openTime);
-
-        closeTime.setHours(
-            closeTime.getHours() +
-            resource.bookingWindowDurationHours
-        );
-
-        const now = new Date();
+const now = moment().tz("Asia/Kolkata");
 
 console.log("==================================");
 console.log("Received Date:", date);
@@ -188,13 +170,12 @@ console.log(
 );
 console.log("==================================");
 
-if (now < openTime) {
+if (now.isBefore(openTime)) {
 
     const hoursRemaining =
-        Math.ceil(
-            (openTime.getTime() - now.getTime()) /
-            (1000 * 60 * 60)
-        );
+    Math.ceil(
+        openTime.diff(now, "minutes") / 60
+    );
 
     return res.status(200).json({
         status: "OPENS_SOON",
@@ -205,16 +186,16 @@ if (now < openTime) {
 }
 
         if (
-            now >= openTime &&
-            now <= closeTime
-        ) {
+    now.isSameOrAfter(openTime) &&
+    now.isSameOrBefore(closeTime)
+) {
 
             const requestsReceived =
                 await Reservation.countDocuments({
 
                     requestedResource: resourceId,
 
-                    date: bookingDate
+                    date: bookingDate.toDate()
 
                 });
 

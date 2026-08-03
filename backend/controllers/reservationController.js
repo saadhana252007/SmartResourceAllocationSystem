@@ -4,6 +4,8 @@ const Resource = require("../models/Resource");
 
 const {promoteWaitlistedReservations} = require("../services/allocationService");
 
+const moment = require("moment-timezone");
+
 const createReservation = async (req, res) => {
 
     try {
@@ -32,18 +34,10 @@ const createReservation = async (req, res) => {
     });
 }
 
-        const [year, month, day] =
-    req.body.date.split("-").map(Number);
-
-const bookingDate = new Date(
-    year,
-    month - 1,
-    day,
-    0,
-    1,
-    0,
-    0
-);
+        const bookingDate = moment
+    .tz(req.body.date, "YYYY-MM-DD", "Asia/Kolkata")
+    .startOf("day")
+    .toDate();
 
         const openTime = new Date(bookingDate);
 
@@ -628,18 +622,10 @@ const updateReservation = async (req, res) => {
             });
 
         }
-        const [year, month, day] =
-    req.body.date.split("-").map(Number);
-
-const bookingDate = new Date(
-    year,
-    month - 1,
-    day,
-    0,
-    1,
-    0,
-    0
-);
+       const bookingDate = moment
+    .tz(req.body.date, "YYYY-MM-DD", "Asia/Kolkata")
+    .startOf("day")
+    .toDate();
 
         const updatedReservation =
             await Reservation.findByIdAndUpdate(
