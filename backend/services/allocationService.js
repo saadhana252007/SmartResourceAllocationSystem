@@ -1,5 +1,7 @@
 const Reservation = require("../models/Reservation");
 
+const moment = require("moment-timezone");
+
 const {
     calculatePurposeScores
 } = require("../services/geminiService");
@@ -126,10 +128,10 @@ return (
 const calculateFairUsageScore = async (
     userId
 ) => {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(
-        thirtyDaysAgo.getDate() - 30
-    );
+    const thirtyDaysAgo = moment()
+    .tz("Asia/Kolkata")
+    .subtract(30, "days")
+    .toDate();
     const recentAllocations =
         await Reservation.countDocuments({
             user: userId,
@@ -412,7 +414,9 @@ const executeAllocations = async (
         "APPROVED",
 
     allocatedAt:
-        new Date()
+    moment()
+        .tz("Asia/Kolkata")
+        .toDate()
 
 }
                     }
@@ -882,7 +886,9 @@ const promoteWaitlistedReservations = async (
                     "APPROVED",
 
                 allocatedAt:
-                    new Date()
+    moment()
+        .tz("Asia/Kolkata")
+        .toDate()
 
             }
 
@@ -893,7 +899,8 @@ const promoteWaitlistedReservations = async (
 };
 const rejectExpiredWaitlistedReservations = async () => {
 
-    const now = new Date();
+    const now = moment()
+    .tz("Asia/Kolkata");
 
     const waitlistedReservations =
         await Reservation.find({
@@ -906,19 +913,21 @@ const rejectExpiredWaitlistedReservations = async () => {
 
     for (const reservation of waitlistedReservations) {
 
-        const bookingDate =
-            new Date(reservation.date);
-
         const actualStart =
-            reservation.alternativeStartTime ||
-            reservation.startTime;
+    reservation.alternativeStartTime ||
+    reservation.startTime;
 
-        const [hour, minute] =
-            actualStart.split(":").map(Number);
+const [hour, minute] =
+    actualStart.split(":").map(Number);
 
-        bookingDate.setHours(hour, minute, 0, 0);
+const bookingDate = moment(reservation.date)
+    .tz("Asia/Kolkata")
+    .hour(hour)
+    .minute(minute)
+    .second(0)
+    .millisecond(0);
 
-        if (bookingDate < now) {
+if (bookingDate.isBefore(now)) {
 
             rejectedIds.push(
                 reservation._id
@@ -1170,7 +1179,10 @@ async (
 
     status: "ALTERNATIVE_APPROVED",
 
-    allocatedAt: new Date()
+    allocatedAt:
+    moment()
+        .tz("Asia/Kolkata")
+        .toDate()
 }
 
     );
@@ -1334,7 +1346,9 @@ async (
         "ALTERNATIVE_APPROVED",
 
     allocatedAt:
-        new Date()
+    moment()
+        .tz("Asia/Kolkata")
+        .toDate()
 
 }          
 
@@ -1479,7 +1493,9 @@ async (
         "ALTERNATIVE_APPROVED",
 
     allocatedAt:
-        new Date()
+    moment()
+        .tz("Asia/Kolkata")
+        .toDate()
 
 }
 

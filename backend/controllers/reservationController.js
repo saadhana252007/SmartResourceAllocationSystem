@@ -38,26 +38,26 @@ const createReservation = async (req, res) => {
 
         const bookingDate = moment
     .tz(req.body.date, "YYYY-MM-DD", "Asia/Kolkata")
-    .startOf("day")
-    .toDate();
+    .startOf("day");
 
-        const openTime = new Date(bookingDate);
+const openTime = bookingDate
+    .clone()
+    .subtract(
+        resource.bookingOpenBeforeHours,
+        "hours"
+    );
 
-        openTime.setHours(
-            openTime.getHours() -
-            resource.bookingOpenBeforeHours
-        );
+const closeTime = openTime
+    .clone()
+    .add(
+        resource.bookingWindowDurationHours,
+        "hours"
+    );
 
-        const closeTime = new Date(openTime);
+const now = moment().tz("Asia/Kolkata");
+        if (now.isBefore(openTime)) {
 
-        closeTime.setHours(
-            closeTime.getHours() +
-            resource.bookingWindowDurationHours
-        );
-
-        const now = new Date();
-
-        if (now < openTime) {
+            
 
             return res.status(400).json({
                 success: false,
@@ -68,7 +68,7 @@ const createReservation = async (req, res) => {
 
         }
 
-        if (now > closeTime) {
+        if (now.isAfter(closeTime)){
 
             return res.status(400).json({
                 success: false,
@@ -172,7 +172,7 @@ const createReservation = async (req, res) => {
 
         ...req.body,
 
-        date: bookingDate,
+        date: bookingDate.toDate(),
 
         user: req.user.id,
 
@@ -531,6 +531,43 @@ const updateReservation = async (req, res) => {
             });
 
         }
+        const bookingDate = moment
+    .tz(req.body.date, "YYYY-MM-DD", "Asia/Kolkata")
+    .startOf("day");
+
+const openTime = bookingDate
+    .clone()
+    .subtract(
+        resource.bookingOpenBeforeHours,
+        "hours"
+    );
+
+const closeTime = openTime
+    .clone()
+    .add(
+        resource.bookingWindowDurationHours,
+        "hours"
+    );
+
+const now = moment().tz("Asia/Kolkata");
+
+if (now.isBefore(openTime)) {
+
+    return res.status(400).json({
+        success: false,
+        message: "Booking window has not opened yet."
+    });
+
+}
+
+if (now.isAfter(closeTime)) {
+
+    return res.status(400).json({
+        success: false,
+        message: "Booking window has already closed."
+    });
+
+}
         if (
     resource.resourceType === "QUANTITY_BASED" &&
     req.body.allocationPreference === "ALTERNATE_RESOURCE"
@@ -629,10 +666,8 @@ const updateReservation = async (req, res) => {
             });
 
         }
-       const bookingDate = moment
-    .tz(req.body.date, "YYYY-MM-DD", "Asia/Kolkata")
-    .startOf("day")
-    .toDate();
+       const bookingDateToSave =
+    bookingDate.toDate();
 
         const updatedReservation =
     await Reservation.findByIdAndUpdate(
@@ -643,7 +678,7 @@ const updateReservation = async (req, res) => {
 
             ...req.body,
 
-            date: bookingDate,
+            date: bookingDateToSave,
 
             purposeScore: 0,
 
@@ -654,7 +689,7 @@ const updateReservation = async (req, res) => {
 
         {
 
-            new: true,
+            returnDocument: "after",
 
             runValidators: true
 

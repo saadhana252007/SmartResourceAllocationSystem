@@ -342,9 +342,10 @@ const deleteResource = async (req, res) => {
 
         }
 
-        const today = new Date();
-
-today.setHours(0, 0, 0, 0);
+        const today = moment
+    .tz("Asia/Kolkata")
+    .startOf("day")
+    .toDate();
 
 
 await Reservation.updateMany(

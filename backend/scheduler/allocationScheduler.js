@@ -2,6 +2,7 @@ const cron = require("node-cron");
 
 const Reservation = require("../models/Reservation");
 const Resource = require("../models/Resource");
+const moment = require("moment-timezone");
 
 const {
     runAllocationWorkflow,
@@ -9,21 +10,22 @@ const {
 } = require("../services/allocationService");
 
 function getBookingCloseTime(resource, bookingDate) {
-    const bookingDay = new Date(bookingDate);
-    bookingDay.setHours(0, 0, 0, 0);
 
-    const openTime = new Date(bookingDay);
-    openTime.setHours(
-        openTime.getHours() - resource.bookingOpenBeforeHours
-    );
+    const bookingDay = moment
+        .tz(bookingDate, "Asia/Kolkata")
+        .startOf("day");
 
-    const closeTime = new Date(openTime);
-    closeTime.setHours(
-        closeTime.getHours() +
-        resource.bookingWindowDurationHours
-    );
+    return bookingDay
+        .clone()
+        .subtract(
+            resource.bookingOpenBeforeHours,
+            "hours"
+        )
+        .add(
+            resource.bookingWindowDurationHours,
+            "hours"
+        );
 
-    return closeTime;
 }
 
 cron.schedule("* * * * *", async () => {
@@ -37,7 +39,7 @@ console.log("Scheduler Started");
 
         console.log("Running Allocation Scheduler...");
 
-        const now = new Date();
+        const now = moment().tz("Asia/Kolkata");
 
         const resources = await Resource.find().lean();
 
@@ -64,19 +66,18 @@ const groupedReservations = {};
 
 for (const reservation of reservations) {
 
-    const bookingDate = new Date(reservation.date);
+    const bookingDate = moment
+    .tz(reservation.date, "Asia/Kolkata");
 
     const closeTime = getBookingCloseTime(
         resource,
         bookingDate
     );
 
-    const key =
-        resource.category + "_" +
-        bookingDate.getFullYear() + "-" +
-        String(bookingDate.getMonth() + 1).padStart(2, "0") + "-" +
-        String(bookingDate.getDate()).padStart(2, "0") + "_" +
-        closeTime.getTime();
+   const key =
+    resource.category + "_" +
+    bookingDate.format("YYYY-MM-DD") + "_" +
+    closeTime.valueOf();
 
     if (!groupedReservations[key]) {
 
@@ -108,7 +109,10 @@ const closeTime =
                         `Booking Close : ${closeTime}`
                     );
 
-                    console.log("NOW:", now);
+                    console.log(
+    "NOW:",
+    now.format("YYYY-MM-DD HH:mm:ss")
+);
 
 console.log(
     "Booking Open Before:",
@@ -120,11 +124,23 @@ console.log(
     resource.bookingWindowDurationHours
 );
 
-console.log("OPEN:", new Date(closeTime.getTime() - resource.bookingWindowDurationHours * 60 * 60 * 1000));
+console.log(
+    "OPEN:",
+    closeTime
+        .clone()
+        .subtract(
+            resource.bookingWindowDurationHours,
+            "hours"
+        )
+        .format("YYYY-MM-DD HH:mm:ss")
+);
 
-console.log("CLOSE:", closeTime);
+console.log(
+    "CLOSE:",
+    closeTime.format("YYYY-MM-DD HH:mm:ss")
+);
 
-                    if (now < closeTime) {
+                    if (now.isBefore(closeTime)) {
 
                         console.log(
                             "Booking window still open."
@@ -139,7 +155,7 @@ await Reservation.find({
 
     resourceCategory: resource.category,
 
-    date: bookingDate,
+   date: bookingDate.toDate(),
 
     status: "PENDING",
 
@@ -161,8 +177,8 @@ allReservations.filter(reservation => {
 
     return (
 
-        reservationCloseTime.getTime() ===
-        closeTime.getTime()
+       reservationCloseTime.valueOf() ===
+closeTime.valueOf()
 
     );
 
