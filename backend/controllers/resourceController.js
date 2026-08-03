@@ -121,8 +121,10 @@ return res.status(500).json({
 };
 
 const getBookingStatus = async (req, res) => {
+    console.log("******** getBookingStatus API HIT ********");
 
     try {
+
 
         const { resourceId, date } = req.query;
 
@@ -130,39 +132,41 @@ const getBookingStatus = async (req, res) => {
             await Resource.findById(resourceId);
 
         if (!resource) {
+
             return res.status(404).json({
                 success: false,
                 message: "Resource not found"
             });
+
         }
 
-        const [year, month, day] = date.split("-").map(Number);
+        const [year, month, day] =
+            date.split("-").map(Number);
 
-const bookingDate = new Date(
-    year,
-    month - 1,
-    day,
-    0,
-    0,
-    0,
-    0
-);
-
+        const bookingDate = new Date(
+            year,
+            month - 1,
+            day,
+            0,
+            0,
+            0,
+            0
+        );
 
         const openTime =
             new Date(bookingDate);
 
         openTime.setHours(
-            openTime.getHours()
-            - resource.bookingOpenBeforeHours
+            openTime.getHours() -
+            resource.bookingOpenBeforeHours
         );
 
         const closeTime =
             new Date(openTime);
 
         closeTime.setHours(
-            closeTime.getHours()
-            + resource.bookingWindowDurationHours
+            closeTime.getHours() +
+            resource.bookingWindowDurationHours
         );
 
         const now = new Date();
@@ -171,14 +175,19 @@ const bookingDate = new Date(
 
             const hoursRemaining =
                 Math.ceil(
-                    (openTime - now)
-                    / (1000 * 60 * 60)
+                    (openTime.getTime() - now.getTime()) /
+                    (1000 * 60 * 60)
                 );
 
             return res.status(200).json({
+
                 status: "OPENS_SOON",
+
                 hoursRemaining,
-                message:"Booking window has not opened yet."
+
+                message:
+                    "Booking window has not opened yet."
+
             });
 
         }
@@ -189,56 +198,56 @@ const bookingDate = new Date(
         ) {
 
             const requestsReceived =
-            await Reservation.countDocuments({
-                requestedResource: resourceId,
-                date: bookingDate
-            });
+                await Reservation.countDocuments({
+
+                    requestedResource: resourceId,
+
+                    date: bookingDate
+
+                });
 
             return res.status(200).json({
+
                 status: "OPEN",
 
                 requestsReceived,
 
-            availableUnits:resource.resourceType ==="QUANTITY_BASED"? resource.availableUnits: resource.capacity,
+                availableUnits:
+                    resource.resourceType === "QUANTITY_BASED"
+                        ? resource.availableUnits
+                        : resource.capacity,
 
-            message:"Your request will be evaluated after the booking window closes."
+                message:
+                    "Your request will be evaluated after the booking window closes."
+
             });
 
         }
 
+        return res.status(200).json({
 
-       return res.status(200).json({
             status: "CLOSED",
-            message:"Booking window has closed."
+
+            message:
+                "Booking window has closed."
+
         });
-
-                console.log("Received date:", date);
-
-console.log("Booking Date:", bookingDate);
-
-console.log("Now:", now);
-
-console.log("Open Time:", openTime);
-
-console.log("Close Time:", closeTime);
 
     } catch (error) {
 
         console.error(error);
 
-return res.status(500).json({
+        return res.status(500).json({
 
-    success: false,
+            success: false,
 
-    message: "Internal server error"
+            message: "Internal server error"
 
-});
+        });
 
     }
 
-};
-
-const getMyResources = async (req, res) => {
+};const getMyResources = async (req, res) => {
 
     try {
 
