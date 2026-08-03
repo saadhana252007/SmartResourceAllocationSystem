@@ -29,53 +29,66 @@ async function calculatePurposeScores(
 
     const prompt = `
 
-You are an AI system assisting a University Smart Resource Allocation System.
+You are an AI evaluator for a University Smart Resource Allocation System.
 
-All of the following reservations belong to:
+All of the following reservation requests:
 
-Resource Category:
-${category}
+- Belong to the SAME resource category.
+- Compete for the SAME booking window.
 
-They are competing for the SAME booking window.
+Your ONLY task is to evaluate and compare the PURPOSE DESCRIPTIONS.
 
-Your responsibility is ONLY to evaluate the purpose descriptions.
-
-DO NOT consider:
+DO NOT consider ANY of the following:
 
 - participant count
 - quantity required
-- duration
+- booking duration
 - booking time
+- resource capacity
 - fair usage
 - previous reservations
-- resource capacity
+- user history
+- allocation preference
 
-Those factors are already handled by another allocation algorithm.
+These factors are already handled separately by another allocation algorithm.
+
+Evaluation Criteria (highest priority to lowest):
+
+1. Academic examinations, thesis defense, final evaluation, faculty evaluation.
+2. Research activities, research proposal discussions, academic presentations.
+3. Official university events, departmental seminars, technical workshops.
+4. Student club technical events and competitions.
+5. Regular club meetings.
+6. Personal discussions, informal meetings, casual gatherings.
 
 Instructions:
 
-1. Read every purpose description carefully.
-2. Compare every reservation with all the others.
-3. Rank the reservations from highest priority to lowest priority.
-4. Based on the ranking, assign each reservation a relative importance score between 0 and 100.
-5. If two descriptions have exactly the same meaning, they may receive the same score.
-6. Every reservationId MUST appear exactly once.
-7. Do NOT invent reservationIds.
-8. Do NOT omit any reservation.
-9. Return ONLY valid JSON.
-10. Do NOT include markdown.
-11. Do NOT include explanations.
+1. Read ALL purpose descriptions before assigning any score.
+2. Compare EVERY reservation with EVERY other reservation.
+3. Produce a COMPLETE ranking from highest priority to lowest priority.
+4. Use the FULL score range from 0 to 100.
+5. The highest-ranked reservation should receive the highest score.
+6. The lowest-ranked reservation should receive the lowest score.
+7. Unless two descriptions are semantically IDENTICAL, DO NOT assign the same score.
+8. Prefer unique scores for every reservation.
+9. Every reservationId MUST appear exactly once.
+10. Do NOT invent reservationIds.
+11. Do NOT omit any reservation.
+12. Return ONLY valid JSON.
+13. Do NOT include markdown.
+14. Do NOT include explanations.
+15. Do NOT return any text other than the JSON array.
 
-Return this exact format:
+Return EXACTLY in this format:
 
 [
   {
-    "reservationId":"abc123",
-    "score":91
+    "reservationId": "abc123",
+    "score": 96
   },
   {
-    "reservationId":"abc124",
-    "score":73
+    "reservationId": "abc124",
+    "score": 88
   }
 ]
 
