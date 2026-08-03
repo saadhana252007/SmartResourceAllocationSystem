@@ -171,26 +171,36 @@ const getBookingStatus = async (req, res) => {
 
         const now = new Date();
 
-        if (now < openTime) {
+console.log("==================================");
+console.log("Received Date:", date);
+console.log("Current Time:", now);
+console.log("Timezone Offset:", now.getTimezoneOffset());
+console.log("Booking Open Before:", resource.bookingOpenBeforeHours);
+console.log("Booking Window Duration:", resource.bookingWindowDurationHours);
+console.log("Booking Date:", bookingDate);
+console.log("Open Time:", openTime);
+console.log("Close Time:", closeTime);
+console.log(
+    "Hours Remaining:",
+    (openTime.getTime() - now.getTime()) / (1000 * 60 * 60)
+);
+console.log("==================================");
 
-            const hoursRemaining =
-                Math.ceil(
-                    (openTime.getTime() - now.getTime()) /
-                    (1000 * 60 * 60)
-                );
+if (now < openTime) {
 
-            return res.status(200).json({
+    const hoursRemaining =
+        Math.ceil(
+            (openTime.getTime() - now.getTime()) /
+            (1000 * 60 * 60)
+        );
 
-                status: "OPENS_SOON",
+    return res.status(200).json({
+        status: "OPENS_SOON",
+        hoursRemaining,
+        message: "Booking window has not opened yet."
+    });
 
-                hoursRemaining,
-
-                message:
-                    "Booking window has not opened yet."
-
-            });
-
-        }
+}
 
         if (
             now >= openTime &&
