@@ -155,21 +155,6 @@ const closeTime = openTime
 
 const now = moment().tz("Asia/Kolkata");
 
-console.log("==================================");
-console.log("Received Date:", date);
-console.log("Current Time:", now);
-console.log("Timezone Offset:", now.getTimezoneOffset());
-console.log("Booking Open Before:", resource.bookingOpenBeforeHours);
-console.log("Booking Window Duration:", resource.bookingWindowDurationHours);
-console.log("Booking Date:", bookingDate);
-console.log("Open Time:", openTime);
-console.log("Close Time:", closeTime);
-console.log(
-    "Hours Remaining:",
-    (openTime.getTime() - now.getTime()) / (1000 * 60 * 60)
-);
-console.log("==================================");
-
 if (now.isBefore(openTime)) {
 
     const hoursRemaining =
