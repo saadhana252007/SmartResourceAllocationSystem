@@ -1,6 +1,8 @@
 const Resource = require("../models/Resource");
 const Reservation = require("../models/Reservation");
 
+console.log("RESOURCE CONTROLLER VERSION 2");
+
 
 const createResource = async (req, res) => {
 
