@@ -136,11 +136,18 @@ const getBookingStatus = async (req, res) => {
             });
         }
 
-        const bookingDate = new Date(date);
+        const [year, month, day] = date.split("-").map(Number);
 
-        bookingDate.setHours(
-            0, 1, 0, 0
-        );
+const bookingDate = new Date(
+    year,
+    month - 1,
+    day,
+    0,
+    0,
+    0,
+    0
+);
+
 
         const openTime =
             new Date(bookingDate);
@@ -199,10 +206,21 @@ const getBookingStatus = async (req, res) => {
 
         }
 
+
        return res.status(200).json({
             status: "CLOSED",
             message:"Booking window has closed."
         });
+
+                console.log("Received date:", date);
+
+console.log("Booking Date:", bookingDate);
+
+console.log("Now:", now);
+
+console.log("Open Time:", openTime);
+
+console.log("Close Time:", closeTime);
 
     } catch (error) {
 
