@@ -102,7 +102,14 @@ ${JSON.stringify(requests, null, 2)}
 
     try {
 
-        return JSON.parse(text);
+           const scores = JSON.parse(text);
+
+    console.log("================================");
+    console.log("Gemini Response:");
+    console.log(scores);
+    console.log("================================");
+
+    return scores;
 
     } catch (error) {
 
