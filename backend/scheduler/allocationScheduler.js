@@ -108,6 +108,22 @@ const closeTime =
                         `Booking Close : ${closeTime}`
                     );
 
+                    console.log("NOW:", now);
+
+console.log(
+    "Booking Open Before:",
+    resource.bookingOpenBeforeHours
+);
+
+console.log(
+    "Booking Window Duration:",
+    resource.bookingWindowDurationHours
+);
+
+console.log("OPEN:", new Date(closeTime.getTime() - resource.bookingWindowDurationHours * 60 * 60 * 1000));
+
+console.log("CLOSE:", closeTime);
+
                     if (now < closeTime) {
 
                         console.log(
