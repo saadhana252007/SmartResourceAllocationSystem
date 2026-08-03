@@ -83,6 +83,24 @@ purposeScore: {
     max: 100
 },
 
+purposeScoreStatus: {
+
+    type: String,
+
+    enum: [
+
+        "PENDING",
+
+        "COMPLETED",
+
+        "FAILED"
+
+    ],
+
+    default: "PENDING"
+
+},
+
     status: {
         type: String,
         enum: [

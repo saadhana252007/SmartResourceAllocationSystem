@@ -1314,7 +1314,8 @@ const generatePurposeScores = async (
     const pendingReservations =
         reservations.filter(
             reservation =>
-                reservation.purposeScore === 0
+                reservation.purposeScoreStatus ===
+                "PENDING"
         );
 
     if (!pendingReservations.length) {
@@ -1323,18 +1324,68 @@ const generatePurposeScores = async (
 
     }
 
-    const scores =
-        await calculatePurposeScores(
-            pendingReservations
+    let scores;
+
+    try {
+
+        scores =
+            await calculatePurposeScores(
+                pendingReservations
+            );
+
+    }
+
+    catch (error) {
+
+        console.log(
+            "Gemini unavailable."
         );
 
-        if (scores.length !== pendingReservations.length) {
+        await Reservation.updateMany(
 
-    throw new Error(
-        "Gemini did not return scores for all reservations."
-    );
+            {
 
-}
+                _id: {
+
+                    $in:
+                        pendingReservations.map(
+
+                            reservation =>
+                                reservation._id
+
+                        )
+
+                }
+
+            },
+
+            {
+
+                $set: {
+
+                    purposeScoreStatus:
+                        "FAILED"
+
+                }
+
+            }
+
+        );
+
+        return;
+
+    }
+
+    if (
+        scores.length !==
+        pendingReservations.length
+    ) {
+
+        throw new Error(
+            "Gemini did not return scores for all reservations."
+        );
+
+    }
 
     for (const item of scores) {
 
@@ -1350,16 +1401,19 @@ const generatePurposeScores = async (
 
         if (!reservation) {
 
-    throw new Error(
+            throw new Error(
 
-        `Unknown reservationId returned by Gemini: ${item.reservationId}`
+                `Unknown reservationId returned by Gemini: ${item.reservationId}`
 
-    );
+            );
 
-}
+        }
 
         reservation.purposeScore =
             item.score;
+
+        reservation.purposeScoreStatus =
+            "COMPLETED";
 
         await reservation.save();
 

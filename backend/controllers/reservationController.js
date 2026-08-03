@@ -8,6 +8,8 @@ const moment = require("moment-timezone");
 
 const createReservation = async (req, res) => {
 
+    
+
     try {
 
         const resource = await Resource.findById(
@@ -166,18 +168,23 @@ const createReservation = async (req, res) => {
         }
 
         const reservation =
-            await Reservation.create({
+    await Reservation.create({
 
-                ...req.body,
+        ...req.body,
 
-                date: bookingDate,
+        date: bookingDate,
 
-                user: req.user.id,
+        user: req.user.id,
 
-                resourceCategory:
-                    resource.category
+        resourceCategory:
+            resource.category,
 
-            });
+        purposeScore: 0,
+
+        purposeScoreStatus:
+            "PENDING"
+
+    });
 
         res.status(201).json({
             success: true,
@@ -628,21 +635,32 @@ const updateReservation = async (req, res) => {
     .toDate();
 
         const updatedReservation =
-            await Reservation.findByIdAndUpdate(
+    await Reservation.findByIdAndUpdate(
 
-    req.params.id,
+        req.params.id,
 
-    {
-        ...req.body,
-        date: bookingDate
-    },
+        {
 
-    {
-        new: true,
-        runValidators: true
-    }
+            ...req.body,
 
-);
+            date: bookingDate,
+
+            purposeScore: 0,
+
+            purposeScoreStatus:
+                "PENDING"
+
+        },
+
+        {
+
+            new: true,
+
+            runValidators: true
+
+        }
+
+    );
 
         res.status(200).json({
             success: true,
