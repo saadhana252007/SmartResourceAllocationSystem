@@ -79,19 +79,17 @@ class EditProfileBottomSheet : BottomSheetDialogFragment() {
         viewModel.updateProfile.observe(viewLifecycleOwner) {
 
             sharedPrefManager.saveUserName(
-
                 it.user.name
+            )
 
+            sharedPrefManager.saveEmail(
+                it.user.email
             )
 
             Toast.makeText(
-
                 requireContext(),
-
                 "Profile Updated Successfully",
-
                 Toast.LENGTH_SHORT
-
             ).show()
 
             dismiss()

@@ -553,33 +553,33 @@ class AnalyticsFragment :
 
         binding.tvMostReserved.text =
 
-            "🏆 Most Reserved Resource : ${
+            " Most Reserved Resource : ${
                 analytics.insights.mostReservedResource
             }"
 
         binding.tvHighestUtilization.text =
             if (analytics.insights.highestUtilization != null) {
 
-                "📈 Highest Utilization : ${
+                " Highest Utilization : ${
                     analytics.insights.highestUtilization._id.name
                 } (${analytics.insights.highestUtilization.reservations})"
 
             } else {
 
-                "📈 Highest Utilization : N/A"
+                " Highest Utilization : N/A"
 
             }
 
         binding.tvLeastUtilization.text =
             if (analytics.insights.leastUtilization != null) {
 
-                "📉 Least Utilized : ${
+                " Least Utilized : ${
                     analytics.insights.leastUtilization._id.name
                 } (${analytics.insights.leastUtilization.reservations})"
 
             } else {
 
-                "📉 Least Utilized : N/A"
+                " Least Utilized : N/A"
 
             }
 
@@ -588,7 +588,7 @@ class AnalyticsFragment :
 
         binding.tvPeakDay.text =
 
-            "🔥 Peak Reservation Day : ${
+            " Peak Reservation Day : ${
                 analytics.insights.peakReservationDay?.let {
 
                     DateUtils.formatShortDate(it)
@@ -598,7 +598,7 @@ class AnalyticsFragment :
 
         binding.tvAverageDuration.text =
 
-            "⏰ Average Duration : ${
+            " Average Duration : ${
                 String.format(
                     "%.1f",
                     analytics.insights.averageReservationDuration

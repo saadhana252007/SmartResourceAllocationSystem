@@ -5,75 +5,114 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
-    android:backgroundTint="#E3EFF7"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="6dp">
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginVertical="7dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="10dp"
+    app:cardUseCompatPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tvResourceName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#1B3A57"
-            android:textSize="18sp"
-            android:textStyle="bold"/>
+        <View
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#1B3A57"/>
 
-        <TextView
-            android:id="@+id/tvAllocatedLabel"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Allocated Resource"
-            android:textStyle="bold"
-            android:textColor="#2E7D32"
-            android:layout_marginTop="4dp"
-            android:visibility="gone"/>
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="18dp">
 
-        <TextView
-            android:id="@+id/tvAllocatedResource"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#2E7D32"
-            android:textStyle="bold"
-            android:layout_marginTop="2dp"
-            android:visibility="gone"/>
+            <TextView
+                android:id="@+id/tvResourceName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="#0E2A45"
+                android:textSize="17sp"
+                android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/tvDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#444"
-            android:layout_marginTop="8dp"/>
+            <LinearLayout
+                android:id="@+id/allocatedContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical"
+                android:background="#E8F5E9"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:visibility="gone">
 
-        <TextView
-            android:id="@+id/tvTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#444"
-            android:layout_marginTop="4dp"/>
+                <TextView
+                    android:id="@+id/tvAllocatedLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Allocated Resource"
+                    android:textStyle="bold"
+                    android:textColor="#2E7D32"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.04"/>
 
-        <TextView
-            android:id="@+id/tvPurpose"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#444"
-            android:layout_marginTop="4dp"/>
+                <TextView
+                    android:id="@+id/tvAllocatedResource"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="#1B5E20"
+                    android:textStyle="bold"
+                    android:textSize="14sp"/>
 
-        <TextView
-            android:id="@+id/tvStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/status_chip_bg"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="10dp"
+                android:background="#F0F3F7"/>
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#435A70"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/tvTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textColor="#435A70"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/tvPurpose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textColor="#435A70"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:letterSpacing="0.03"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="7dp"
+                android:background="@drawable/status_chip_bg"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

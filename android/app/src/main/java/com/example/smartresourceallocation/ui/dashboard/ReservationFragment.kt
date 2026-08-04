@@ -299,8 +299,8 @@ class ReservationFragment : Fragment() {
         )
 
         intent.putExtra(
-            "purpose",
-            reservation.purpose
+            "purposeDescription",
+            reservation.purposeDescription
         )
 
         intent.putExtra(

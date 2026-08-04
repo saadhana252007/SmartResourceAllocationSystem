@@ -4,136 +4,190 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center"
-        android:background="@drawable/bg">
-
-        <EditText
-            android:id="@+id/etName"
-            android:layout_width="370dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="30dp"
-            android:background="@drawable/text_view_box"
-            android:hint="   Full Name"
-            android:textColor="@color/white"
-            android:textColorHint="#102336"
-            android:textSize="20sp"
-            android:layout_marginTop="-300dp"
-            android:paddingLeft="16dp"/>
-
-        <EditText
-            android:id="@+id/etEmail"
-            android:layout_width="370dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="30dp"
-            android:background="@drawable/text_view_box"
-            android:hint="   Email"
-            android:inputType="textEmailAddress"
-            android:textColor="@color/white"
-            android:textColorHint="#102336"
-            android:textSize="20sp"
-            android:paddingLeft="16dp"/>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="370dp"
-            android:layout_height="wrap_content"
-            app:endIconMode="password_toggle"
-            app:endIconTint="#102336"
-            app:hintTextColor="#102336"
-            android:textColorHint="#102336"
-            app:boxCollapsedPaddingTop="-8dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etPassword"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/text_view_box"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:textColor="@color/white"
-                android:textColorHint="#102336"
-                android:textSize="20sp"
-                android:paddingStart="16dp"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"/>
-
-        </com.google.android.material.textfield.TextInputLayout>
-
+        android:padding="28dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Choose Your Role"
-            android:textSize="28sp"
-            android:textStyle="bold"
+            android:text="Create Account"
             android:textColor="#102336"
-            android:layout_marginBottom="16dp"
-            android:layout_marginTop="30dp"/>
+            android:textStyle="bold"
+            android:textSize="30sp"
+            android:fontFamily="sans-serif-medium"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="20dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Full Name"
+            android:textColor="#102336"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-medium"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="18dp"
+            android:hint="Enter your Full Name"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusBottomEnd="14dp"
+            app:boxStrokeColor="#102336"
+            app:hintTextColor="#BDBDBD">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#102336"
+                android:textSize="16sp"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Email ID"
+            android:textColor="#102336"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-medium"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="18dp"
+            android:hint="Enter your email"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusBottomEnd="14dp"
+            app:boxStrokeColor="#102336"
+            app:hintTextColor="#BDBDBD">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:textColor="#102336"
+                android:textSize="16sp"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="password"
+            android:textColor="#102336"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-medium"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter your password"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusBottomEnd="14dp"
+            app:boxStrokeColor="#102336"
+            app:endIconMode="password_toggle"
+            app:endIconTint="#102336"
+            app:hintTextColor="#BDBDBD">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:textColor="#102336"
+                android:textSize="16sp"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Role"
+            android:textColor="#102336"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp"/>
 
         <RadioGroup
             android:id="@+id/rgRole"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:orientation="horizontal">
 
             <RadioButton
                 android:id="@+id/rbAdmin"
-                android:layout_width="170dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="  Admin"
-                android:textSize="20sp"
+                android:layout_weight="1"
+                android:text="Admin"
+                android:textColor="#102336"
                 android:textStyle="bold"
-                android:textColor="@color/white"
-                android:background="@drawable/text_view_box"
-                android:layout_marginLeft="-10dp"
-                android:layout_marginRight="20dp"
-                android:buttonTint="@color/radio_button_color"
-                android:paddingLeft="10dp"
-                app:buttonTint="@android:color/white"/>
+                android:textSize="16sp"
+                app:buttonTint="#102336"/>
 
             <RadioButton
                 android:id="@+id/rbUser"
-                android:layout_width="170dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="     User"
-                android:textSize="20sp"
+                android:layout_weight="1"
+                android:text="User"
+                android:textColor="#102336"
                 android:textStyle="bold"
-                android:textColor="@color/white"
-                android:background="@drawable/text_view_box"
-                app:buttonTint="@android:color/white"
-                android:paddingLeft="10dp"
-                android:checked="true"/>
+                android:textSize="16sp"
+                android:checked="true"
+                app:buttonTint="#102336"/>
 
         </RadioGroup>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRegister"
-            android:layout_width="280dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:text="REGISTER"
-            android:textSize="20sp"
-            android:fontFamily="@font/eagle_lake"
-            android:textColor="@color/white"
-            android:background="@drawable/button_box"
-            app:backgroundTint="@null"
-            app:rippleColor="@android:color/transparent"/>
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="36dp"
+            android:text="Create Account"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:textColor="@android:color/white"
+            app:backgroundTint="#102336"
+            app:cornerRadius="14dp"/>
 
         <TextView
             android:id="@+id/tvLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="22dp"
             android:text="Already have an account? Login"
+            android:textColor="#102336"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="#102336"/>
+            android:textSize="15sp"/>
 
     </LinearLayout>
 

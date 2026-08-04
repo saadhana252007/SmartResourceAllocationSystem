@@ -103,7 +103,7 @@ class ReservationAdapter(
             }
 
         holder.binding.tvPurpose.text =
-            "Purpose: ${reservation.purpose}"
+            "Purpose: ${reservation.purposeDescription}"
 
         holder.binding.tvStatus.text =
             reservation.status

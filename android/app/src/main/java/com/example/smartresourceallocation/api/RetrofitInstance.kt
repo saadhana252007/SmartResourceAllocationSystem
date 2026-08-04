@@ -8,7 +8,9 @@ import java.util.concurrent.TimeUnit
 object RetrofitInstance {
 
     private const val BASE_URL =
-        "https://smartresourceallocationsystem.onrender.com/"
+       "https://smartresourceallocationsystem.onrender.com/"
+
+
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(60, TimeUnit.SECONDS)

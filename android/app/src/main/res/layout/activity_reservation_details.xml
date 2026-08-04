@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="#E8EDF2">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="3dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -21,198 +20,338 @@
             android:textStyle="bold"
             android:textColor="#1B3A57"
             android:layout_gravity="center"
-            android:fontFamily="@font/eagle_lake"
+            android:fontFamily="sans-serif-medium"
             android:layout_marginTop="50dp"/>
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/rd"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
-            android:backgroundTint="#E3EFF7"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="8dp">
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Requested Resource"
-                    android:textStyle="bold"
-                    android:textColor="#6F9BB8"/>
-
-                <TextView
-                    android:id="@+id/tvRequestedResource"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="#1B3A57"/>
-
-                <TextView
-                    android:id="@+id/tvAllocatedLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Allocated Resource"
-                    android:textStyle="bold"
-                    android:textColor="#6F9BB8"
-                    android:layout_marginTop="10dp"
-                    android:visibility="gone"/>
-
-                <TextView
-                    android:id="@+id/tvAllocatedResource"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="#1B3A57"
-                    android:visibility="gone"/>
-
+                <!-- Accent Left Bar -->
                 <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="10dp"
-                    android:background="#DADADA"/>
+                    android:layout_width="4dp"
+                    android:layout_height="match_parent"
+                    android:background="#1B3A57" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Date"
-                    android:textColor="#6F9BB8"
-                    android:layout_marginTop="10dp"/>
-
-                <TextView
-                    android:id="@+id/tvDate"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#444"
-                    android:textSize="14sp"/>
+                    android:orientation="vertical"
+                    android:paddingVertical="4dp">
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#DADADA"/>
+                    <!-- Requested Resource -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="18dp"
+                        android:paddingVertical="12dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Time"
-                    android:textColor="#6F9BB8"
-                    android:layout_marginTop="10dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Requested Resource"
+                            android:textColor="#8FB3D9"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvTime"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#444"
-                    android:textSize="14sp"/>
+                        <TextView
+                            android:id="@+id/tvRequestedResource"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="#0E2A45"
+                            android:textSize="14.5sp"
+                            android:textStyle="bold" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#DADADA"/>
+                    </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Duration"
-                    android:textColor="#6F9BB8"
-                    android:layout_marginTop="10dp"/>
+                    <!-- Allocated Resource Item Block -->
+                    <LinearLayout
+                        android:id="@+id/tilAllocatedResource"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
 
-                <TextView
-                    android:id="@+id/tvDuration"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#444"
-                    android:textSize="14sp"/>
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="18dp"
+                            android:background="#F0F3F7" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#DADADA"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="18dp"
+                            android:paddingVertical="12dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Purpose"
-                    android:textColor="#6F9BB8"
-                    android:layout_marginTop="10dp"/>
+                            <TextView
+                                android:id="@+id/tvAllocatedLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Allocated Resource"
+                                android:textColor="#8FB3D9"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvPurpose"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#444"
-                    android:textSize="14sp"/>
+                            <TextView
+                                android:id="@+id/tvAllocatedResource"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:textColor="#0E2A45"
+                                android:textSize="14.5sp"
+                                android:textStyle="bold" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#DADADA"/>
+                        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvCountLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Quantity Required"
-                    android:textColor="#6F9BB8"
-                    android:layout_marginTop="10dp"/>
+                    </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvCount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#444"
-                    android:textSize="14sp"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="18dp"
+                        android:background="#F0F3F7" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#DADADA"/>
+                    <!-- Date -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="18dp"
+                        android:paddingVertical="12dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Allocation Preference"
-                    android:textColor="#6F9BB8"
-                    android:layout_marginTop="10dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Date"
+                            android:textColor="#8FB3D9"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvAllocation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#444"
-                    android:textSize="14sp"/>
+                        <TextView
+                            android:id="@+id/tvDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="#0E2A45"
+                            android:textSize="14.5sp"
+                            android:textStyle="bold" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#DADADA"/>
+                    </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Status"
-                    android:textColor="#6F9BB8"
-                    android:layout_marginTop="10dp"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="18dp"
+                        android:background="#F0F3F7" />
 
-                <TextView
-                    android:id="@+id/tvStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#1B3A57"
-                    android:textStyle="bold"
-                    android:textSize="14sp"/>
+                    <!-- Time -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="18dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Time"
+                            android:textColor="#8FB3D9"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvTime"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="#0E2A45"
+                            android:textSize="14.5sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="18dp"
+                        android:background="#F0F3F7" />
+
+                    <!-- Duration -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="18dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Duration"
+                            android:textColor="#8FB3D9"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvDuration"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="#0E2A45"
+                            android:textSize="14.5sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="18dp"
+                        android:background="#F0F3F7" />
+
+                    <!-- Purpose -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="18dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Purpose"
+                            android:textColor="#8FB3D9"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvPurpose"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="#0E2A45"
+                            android:textSize="14.5sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="18dp"
+                        android:background="#F0F3F7" />
+
+                    <!-- Quantity Required -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="18dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:id="@+id/tvCountLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Quantity Required"
+                            android:textColor="#8FB3D9"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvCount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="#0E2A45"
+                            android:textSize="14.5sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="18dp"
+                        android:background="#F0F3F7" />
+
+                    <!-- Allocation Preference -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="18dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Allocation Preference"
+                            android:textColor="#8FB3D9"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvAllocation"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="#0E2A45"
+                            android:textSize="14.5sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="18dp"
+                        android:background="#F0F3F7" />
+
+                    <!-- Status -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="18dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Status"
+                            android:textColor="#8FB3D9"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvStatus"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="#1B3A57"
+                            android:textSize="14.5sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -226,8 +365,8 @@
             android:text="VIEW RESOURCE"
             android:textStyle="bold"
             android:textColor="@color/white"
-            android:background="@drawable/button_box"
-            android:fontFamily="@font/eagle_lake"
+            android:background="@drawable/rounded_bagde"
+            android:backgroundTint="#173B5E"
             app:backgroundTint="@null"
             app:rippleColor="@android:color/transparent"/>
 
@@ -238,8 +377,8 @@
             android:layout_marginTop="12dp"
             android:text="EDIT RESERVATION"
             android:textStyle="bold"
-            android:background="@drawable/button_box"
-            android:fontFamily="@font/eagle_lake"
+            android:background="@drawable/rounded_bagde"
+            android:backgroundTint="#173B5E"
             app:backgroundTint="@null"
             app:rippleColor="@android:color/transparent"
             android:textColor="@color/white"/>
@@ -251,8 +390,8 @@
             android:layout_marginTop="12dp"
             android:text="CANCEL RESERVATION"
             android:textStyle="bold"
-            android:background="@drawable/button_box"
-            android:fontFamily="@font/eagle_lake"
+            android:background="@drawable/rounded_bagde"
+            android:backgroundTint="#173B5E"
             app:backgroundTint="@null"
             app:rippleColor="@android:color/transparent"
             android:textColor="@color/white"/>

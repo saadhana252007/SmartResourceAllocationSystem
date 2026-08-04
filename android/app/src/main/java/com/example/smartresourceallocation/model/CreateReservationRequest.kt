@@ -16,6 +16,6 @@ data class CreateReservationRequest(
 
     val quantityRequired: Int,
 
-    val purpose: String
+    val purposeDescription: String
 
 )

@@ -93,16 +93,16 @@ class ProfileFragment : Fragment() {
                 pref.getRole()
 
         binding.tvFullName.text =
-            "👤 Full Name : ${pref.getUserName()}"
+            " Full Name : ${pref.getUserName()}"
 
         binding.tvProfileEmail.text =
-            "📧 Email : ${pref.getEmail()}"
+            " Email : ${pref.getEmail()}"
 
         binding.tvProfileRole.text =
-            "🛡 Role : ${pref.getRole()}"
+            " Role : ${pref.getRole()}"
 
         binding.tvCreatedDate.text =
-            "📅 Account Created : ${
+            " Account Created : ${
                 pref.getCreatedAt()?.let {
                     DateUtils.formatCreatedDate(it)
                 } ?: "--"

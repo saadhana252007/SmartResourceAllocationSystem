@@ -130,7 +130,7 @@ class AdminReservationDetailsActivity :
                 displayResource?.location ?: "N/A"
 
             binding.Purpose.text =
-                reservation.purpose
+                reservation.purposeDescription
 
             binding.detailStudentName.text =
                 reservation.user.name

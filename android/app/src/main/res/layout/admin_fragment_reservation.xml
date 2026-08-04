@@ -5,37 +5,60 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/bg"
-    android:padding="16dp">
+    android:background="#E8EDF2">
 
-    <TextView
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Reservation Management"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:textColor="#1B3A57"
-        android:fontFamily="@font/eagle_lake"/>
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reservation Management"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="#0E2A45"
+            android:fontFamily="sans-serif-medium"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Review and manage all bookings"
+            android:textColor="#8A94A6"
+            android:textSize="13.5sp"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
+
+    <!-- ============ Search ============ -->
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:layout_marginHorizontal="18dp"
+        android:layout_height="52dp"
+        android:layout_marginHorizontal="20dp"
         android:layout_marginTop="16dp"
-        app:cardCornerRadius="30dp"
-        app:cardElevation="5dp"
-        android:backgroundTint="#E3EFF7">
+        app:cardCornerRadius="26dp"
+        app:cardElevation="1dp"
+        app:cardBackgroundColor="@android:color/white">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:paddingHorizontal="15dp">
+            android:paddingHorizontal="18dp">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/search_icon" />
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/search_icon"
+                android:alpha="0.55"/>
 
             <EditText
                 android:id="@+id/etSearch"
@@ -44,18 +67,24 @@
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:hint="Search resources..."
-                android:textColor="#1B3A57"
-                android:textColorHint="#6C8BA6"
-                android:paddingStart="10dp"/>
+                android:textColor="#0E2A45"
+                android:textColorHint="#A6AEBB"
+                android:textSize="14.5sp"
+                android:paddingStart="12dp"/>
 
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 
+
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:layout_marginTop="18dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="12dp"
+        android:clipToPadding="false"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -67,11 +96,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="All"
-                android:textColor="@color/white"
+                android:textColor="@color/tab_text_color"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:padding="10dp"
-                android:layout_marginEnd="8dp"
+                android:textSize="17sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="11dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/tab_selector"/>
 
             <TextView
@@ -79,11 +112,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Pending"
-                android:textColor="@color/white"
+                android:textColor="@color/tab_text_color"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:padding="10dp"
-                android:layout_marginEnd="8dp"
+                android:textSize="17sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="11dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/tab_selector"/>
 
             <TextView
@@ -91,11 +128,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Approved"
-                android:textColor="@color/white"
+                android:textColor="@color/tab_text_color"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:padding="10dp"
-                android:layout_marginEnd="8dp"
+                android:textSize="17sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="11dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/tab_selector"/>
 
             <TextView
@@ -103,11 +144,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Waitlisted"
-                android:textColor="@color/white"
+                android:textColor="@color/tab_text_color"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:padding="10dp"
-                android:layout_marginEnd="8dp"
+                android:textSize="17sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="11dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/tab_selector"/>
 
             <TextView
@@ -115,32 +160,44 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cancelled"
-                android:textColor="@color/white"
+                android:textColor="@color/tab_text_color"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:padding="10dp"
-                android:layout_marginEnd="8dp"
+                android:textSize="17sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="11dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/tab_selector"/>
 
         </LinearLayout>
 
     </HorizontalScrollView>
 
+
     <TextView
         android:id="@+id/tvTotalReservations"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:layout_marginStart="20dp"
         android:text="Total Reservations : 0"
         android:textStyle="bold"
-        android:textColor="#1B3A57"
-        android:textSize="17sp"
-        android:layout_marginTop="16dp"/>
+        android:textColor="#435A70"
+        android:textSize="13sp"
+        android:letterSpacing="0.02"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvReservations"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="12dp"/>
+        android:layout_marginTop="10dp"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="16dp"
+        android:clipToPadding="false"
+        android:scrollbars="none"/>
 
 </LinearLayout>

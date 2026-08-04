@@ -76,16 +76,16 @@ class ProfileFragment : Fragment() {
             binding.tvRole.text = profile.role
 
             binding.tvFullName.text =
-                "👤 Full Name : ${profile.name}"
+                " Full Name : ${profile.name}"
 
             binding.tvProfileEmail.text =
-                "📧 Email : ${profile.email}"
+                " Email : ${profile.email}"
 
             binding.tvProfileRole.text =
-                "🛡 Role : ${profile.role}"
+                " Role : ${profile.role}"
 
             binding.tvCreatedDate.text =
-                "📅 Account Created : ${
+                " Account Created : ${
                     com.example.smartresourceallocation.utils.DateUtils.format(
                         profile.createdAt
                     )

@@ -6,23 +6,46 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/bg">
+    android:background="#E8EDF2">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="RESOURCES"
-        android:textSize="38sp"
-        android:textStyle="bold"
-        android:textColor="#1B3A57"
-        android:fontFamily="@font/eagle_lake"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"/>
+        android:orientation="vertical"
+        android:paddingTop="26dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="RESOURCES"
+            android:textSize="34sp"
+            android:textStyle="bold"
+            android:textColor="#0E2A45"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.02"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Find and book what you need"
+            android:textColor="#8A94A6"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:layout_marginTop="18dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="12dp"
+        android:clipToPadding="false"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -34,11 +57,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Meeting"
-                android:textColor="@color/white"
+                android:textColor="@color/tab_text_color"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:padding="10dp"
-                android:layout_marginEnd="8dp"
+                android:textSize="17sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="11dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/tab_selector"/>
 
             <TextView
@@ -46,11 +73,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Lab"
-                android:textColor="@color/white"
+                android:textColor="@color/tab_text_color"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:padding="10dp"
-                android:layout_marginEnd="8dp"
+                android:textSize="17sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="11dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/tab_selector"/>
 
             <TextView
@@ -58,11 +89,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Projector"
-                android:textColor="@color/white"
+                android:textColor="@color/tab_text_color"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:padding="10dp"
-                android:layout_marginEnd="8dp"
+                android:textSize="17sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="11dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/tab_selector"/>
 
             <TextView
@@ -70,11 +105,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sports"
-                android:textColor="@color/white"
+                android:textColor="@color/tab_text_color"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:padding="10dp"
-                android:layout_marginEnd="8dp"
+                android:textSize="17sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="11dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/tab_selector"/>
 
             <TextView
@@ -82,11 +121,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Study"
-                android:textColor="@color/white"
+                android:textColor="@color/tab_text_color"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:padding="10dp"
-                android:layout_marginEnd="8dp"
+                android:textSize="17sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="11dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/tab_selector"/>
 
         </LinearLayout>
@@ -96,6 +139,13 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvResources"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:paddingBottom="16dp"
+        android:clipToPadding="false"
+        android:scrollbars="none"/>
 
 </LinearLayout>

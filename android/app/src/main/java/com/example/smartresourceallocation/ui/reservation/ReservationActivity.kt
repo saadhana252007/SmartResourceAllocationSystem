@@ -63,6 +63,13 @@ class ReservationActivity : AppCompatActivity() {
         sharedPrefManager =
             SharedPrefManager(this)
 
+        resourceViewModel =
+            ViewModelProvider(this)[
+                ResourceViewModel::class.java
+            ]
+
+        observeBookingStatus()
+
         observeReservationResponse()
 
         setupCreateReservation()
@@ -77,12 +84,7 @@ class ReservationActivity : AppCompatActivity() {
 
         setupTimePicker()
 
-        resourceViewModel =
-            ViewModelProvider(this)[
-                ResourceViewModel::class.java
-            ]
 
-        observeBookingStatus()
 
     }
 
@@ -186,16 +188,6 @@ class ReservationActivity : AppCompatActivity() {
             "24 Hours"
         )
 
-        val purposeList =
-            listOf(
-                "Select Purpose",
-                "Academic",
-                "Research",
-                "Project Work",
-                "Club Activity",
-                "Personal"
-            )
-
         val allocationList =
             if (resourceType == "CAPACITY_BASED") {
 
@@ -229,21 +221,6 @@ class ReservationActivity : AppCompatActivity() {
 
         binding.spinnerDuration.adapter =
             durationAdapter
-
-
-        val purposeAdapter =
-            ArrayAdapter(
-                this,
-                R.layout.spinner_item,
-                purposeList
-            )
-
-        purposeAdapter.setDropDownViewResource(
-            R.layout.spinner_dropdown_item
-        )
-
-        binding.spinnerPurpose.adapter =
-            purposeAdapter
 
 
         val allocationAdapter =
@@ -419,10 +396,11 @@ class ReservationActivity : AppCompatActivity() {
                         .selectedItem
                         .toString()
 
-                val purpose =
-                    binding.spinnerPurpose
-                        .selectedItem
+                val purposeDescription =
+                    binding.etPurposeDescription
+                        .text
                         .toString()
+                        .trim()
 
                 val allocation =
                     binding.spinnerAllocationPreference
@@ -440,13 +418,10 @@ class ReservationActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
 
-                if (purpose == "Select Purpose") {
+                if (purposeDescription.isEmpty()) {
 
-                    Toast.makeText(
-                        this,
-                        "Please select purpose",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    binding.etPurposeDescription.error =
+                        "Please describe your purpose"
 
                     return@setOnClickListener
                 }
@@ -571,8 +546,8 @@ class ReservationActivity : AppCompatActivity() {
                         quantityRequired =
                             quantityRequired,
 
-                        purpose =
-                            purpose
+                        purposeDescription =
+                            purposeDescription
 
                     )
 
@@ -709,8 +684,11 @@ class ReservationActivity : AppCompatActivity() {
 
     private fun prefillReservationData() {
 
+        val rawDate =
+            intent.getStringExtra("date") ?: ""
+
         binding.tvSelectedDate.text =
-            intent.getStringExtra("date")
+            DateUtils.formatReservationDateForEdit(rawDate)
 
         resourceViewModel.getBookingStatus(
             resourceId,
@@ -726,36 +704,29 @@ class ReservationActivity : AppCompatActivity() {
                 1
             )
 
-        binding.spinnerDuration.setSelection(
-            duration
-        )
+        val position = when (duration) {
+            1 -> 1
+            2 -> 2
+            3 -> 3
+            4 -> 4
+            5 -> 5
+            6 -> 6
+            8 -> 7
+            10 -> 8
+            12 -> 9
+            24 -> 10
+            else -> 0
+        }
 
-        val purpose =
+        binding.spinnerDuration.setSelection(position)
+
+        binding.etPurposeDescription.setText(
+
             intent.getStringExtra(
-                "purpose"
-            )
+                "purposeDescription"
+            ) ?: ""
 
-        val purposePosition =
-            when(purpose){
-
-                "Academic" -> 1
-
-                "Research" -> 2
-
-                "Project Work" -> 3
-
-                "Club Activity" -> 4
-
-                "Personal" -> 5
-
-                else -> 0
-
-            }
-
-        binding.spinnerPurpose.setSelection(
-            purposePosition
         )
-
         val allocation =
             intent.getStringExtra(
                 "allocation"

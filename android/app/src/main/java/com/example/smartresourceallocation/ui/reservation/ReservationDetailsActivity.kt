@@ -193,10 +193,8 @@ class ReservationDetailsActivity :
                 0
             )
 
-        val purpose =
-            intent.getStringExtra(
-                "purpose"
-            )
+        val purposeDescription =
+            intent.getStringExtra("purposeDescription")
 
         reservationId =
             intent.getStringExtra(
@@ -238,16 +236,6 @@ class ReservationDetailsActivity :
         binding.btnEditReservation.alpha =
             if (status == "PENDING") 1f else 0.5f
 
-
-        binding.btnCancelReservation.isEnabled =
-            status == "PENDING" || status == "APPROVED"
-
-        binding.btnCancelReservation.alpha =
-            if (
-                status == "PENDING" ||
-                status == "APPROVED"
-            ) 1f else 0.5f
-
         binding.tvRequestedResource.text =
             resourceName
 
@@ -287,7 +275,7 @@ class ReservationDetailsActivity :
             "Duration: $duration Hours"
 
         binding.tvPurpose.text =
-            "Purpose: $purpose"
+            "Purpose: $purposeDescription"
 
         binding.tvAllocation.text =
             "Allocation: $allocation"
@@ -369,13 +357,34 @@ class ReservationDetailsActivity :
                 "Duration: ${it.durationHours} Hours"
 
             binding.tvPurpose.text =
-                "Purpose: ${it.purpose}"
+                "Purpose: ${it.purposeDescription}"
 
             binding.tvAllocation.text =
                 "Allocation: ${it.allocationPreference}"
 
             binding.tvStatus.text =
                 "Status: ${it.status}"
+
+            val reservationDateTime =
+                DateUtils.parseReservationDateTime(
+                    it.date,
+                    it.startTime
+                )
+
+            val hasStarted =
+                System.currentTimeMillis() >= reservationDateTime.time
+
+            binding.btnCancelReservation.isEnabled =
+                !hasStarted &&
+                        (
+                                it.status == "PENDING" ||
+                                        it.status == "APPROVED" ||
+                                        it.status == "WAITLISTED" ||
+                                        it.status == "ALTERNATIVE_APPROVED"
+                                )
+
+            binding.btnCancelReservation.alpha =
+                if (binding.btnCancelReservation.isEnabled) 1f else 0.5f
 
         }
 
@@ -481,9 +490,7 @@ class ReservationDetailsActivity :
 
         editIntent.putExtra(
             "date",
-            intent.getStringExtra(
-                "date"
-            )
+            currentReservation?.date ?: ""
         )
 
         editIntent.putExtra(
@@ -502,10 +509,8 @@ class ReservationDetailsActivity :
         )
 
         editIntent.putExtra(
-            "purpose",
-            intent.getStringExtra(
-                "purpose"
-            )
+            "purposeDescription",
+            intent.getStringExtra("purposeDescription")
         )
 
         editIntent.putExtra(

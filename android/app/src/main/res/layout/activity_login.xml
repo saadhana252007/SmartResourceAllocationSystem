@@ -1,104 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center"
-    android:background="@drawable/bg"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/bg"
+    android:fillViewport="true">
 
-    <ImageView
-        android:id="@+id/imgLogo"
-        android:layout_width="250dp"
-        android:layout_height="180dp"
-        android:src="@drawable/logo"
-        android:layout_marginTop="-50dp"
-        android:layout_marginBottom="15dp"
-        android:adjustViewBounds="true"/>
-
-    <TextView
-        android:text="LOGIN"
-        android:textSize="50sp"
-        android:textStyle="bold"
-        android:fontFamily="@font/eagle_lake"
-        android:textColor="#102336"
-        android:layout_marginBottom="25dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <EditText
-        android:id="@+id/etEmail"
-        android:hint="   Email"
-        android:inputType="textEmailAddress"
-        android:background="@drawable/text_view_box"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginBottom="16dp"
-        android:textSize="20sp"
-        android:textColor="@color/white"
-        android:textColorHint="#102336"
-        android:paddingLeft="16dp"/>
-
-    <com.google.android.material.textfield.TextInputLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:endIconMode="password_toggle"
-        app:endIconTint="#102336"
-        app:hintTextColor="#102336"
-        android:textColorHint="#102336"
-        app:boxCollapsedPaddingTop="-8dp">
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingTop="32dp"
+        android:paddingBottom="32dp"
+        android:paddingStart="38dp"
+        android:paddingEnd="38dp">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etPassword"
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="165dp"
+            android:layout_height="165dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="16dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/logo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome Back"
+            android:textColor="#102336"
+            android:textStyle="bold"
+            android:textSize="30sp"
+            android:fontFamily="sans-serif-medium" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="30dp"
+            android:text="Sign in to continue"
+            android:textColor="#6E7A8A"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif" />
+
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/text_view_box"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:textColor="@color/white"
-            android:textColorHint="#102336"
-            android:textSize="20sp"
-            android:paddingStart="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"/>
+            android:layout_height="wrap_content"
+            android:text="Email ID"
+            android:textColor="#102336"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-medium"/>
 
-    </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:hint="Enter your email"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusBottomEnd="14dp"
+            app:boxStrokeColor="#102336"
+            app:hintTextColor="#BDBDBD">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:fontFamily="sans-serif"
+                android:inputType="textEmailAddress"
+                android:paddingHorizontal="18dp"
+                android:textColor="#102336"
+                android:textSize="16sp"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
 
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Password"
+            android:textColor="#102336"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-medium"/>
 
-    <TextView
-        android:id="@+id/tvForgot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Forgot Password?"
-        android:textColor="#102336"
-        android:textSize="16sp"
-        android:layout_gravity="end"
-        android:padding="8dp"
-        android:textStyle="bold"/>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter your password"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusBottomEnd="14dp"
+            app:boxStrokeColor="#102336"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:endIconMode="password_toggle"
+            app:endIconTint="#8A8A8A"
+            app:hintTextColor="#BDBDBD">
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:text="LOGIN"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/button_box"
-        app:backgroundTint="@null"
-        app:rippleColor="@android:color/transparent"
-        android:textSize="20sp"
-        android:fontFamily="@font/eagle_lake"
-        android:textColor="@color/white"/>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:fontFamily="sans-serif"
+                android:gravity="center_vertical"
+                android:inputType="textPassword"
+                android:paddingHorizontal="18dp"
+                android:textColor="#102336"
+                android:textSize="16sp"/>
 
-    <TextView
-        android:id="@+id/tvRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Don't have an account? Register"
-        android:textColor="#102336"
-        android:textSize="16sp"
-        android:textStyle="bold"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvForgot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            android:text="Forgot Password?"
+            android:textColor="#102336"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="28dp"
+            android:text="LOGIN"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            app:backgroundTint="#102336"
+            app:cornerRadius="16dp"
+            app:elevation="3dp"/>
+
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="Don't have an account? Register"
+            android:textColor="#102336"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif"/>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -10,7 +10,9 @@ data class Reservation(
 
     val durationHours: Int,
 
-    val purpose: String,
+    val purposeDescription: String,
+
+    val purposeScore: Int,
 
     val status: String,
 
