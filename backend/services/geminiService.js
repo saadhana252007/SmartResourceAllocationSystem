@@ -98,14 +98,35 @@ ${JSON.stringify(requests, null, 2)}
 
 `;
 
-    const response =
-        await ai.models.generateContent({
+    let response;
 
-            model: "gemini-2.5-flash-lite",
+try {
 
-            contents: prompt
+    response = await ai.models.generateContent({
 
-        });
+        model: "gemini-2.5-flash-lite",
+
+        contents: prompt
+
+    });
+
+} catch (error) {
+
+    console.log("========== GEMINI API ERROR ==========");
+
+    console.log(error);
+
+    console.log("Message:", error.message);
+
+    console.log("Status:", error.status);
+
+    console.log("Code:", error.code);
+
+    console.log("======================================");
+
+    throw error;
+
+}
 
     const text =
         response.text
