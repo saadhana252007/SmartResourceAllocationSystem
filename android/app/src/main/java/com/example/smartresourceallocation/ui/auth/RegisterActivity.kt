@@ -133,21 +133,33 @@ class RegisterActivity : AppCompatActivity() {
 
             if (it.role == "ADMIN") {
 
-                startActivity(
-                    Intent(
-                        this,
-                        AdminHomeActivity::class.java
-                    )
+                val intent = Intent(
+                    this,
+                    AdminHomeActivity::class.java
                 )
+
+                intent.flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                startActivity(intent)
+
+                finish()
 
             } else {
 
-                startActivity(
-                    Intent(
-                        this,
-                        UserDashboardActivity::class.java
-                    )
+                val intent = Intent(
+                    this,
+                    UserDashboardActivity::class.java
                 )
+
+                intent.flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                startActivity(intent)
+
+                finish()
 
             }
 

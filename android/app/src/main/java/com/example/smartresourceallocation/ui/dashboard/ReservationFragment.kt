@@ -119,6 +119,11 @@ class ReservationFragment : Fragment() {
             viewLifecycleOwner
         ) {
 
+            binding.shimmerLayout.stopShimmer()
+            binding.shimmerLayout.visibility = View.GONE
+
+            binding.rvReservations.visibility = View.VISIBLE
+
             allReservations = it
 
             adapter.updateList(it)
@@ -128,6 +133,11 @@ class ReservationFragment : Fragment() {
         viewModel.errorMessage.observe(
             viewLifecycleOwner
         ) {
+
+            binding.shimmerLayout.stopShimmer()
+            binding.shimmerLayout.visibility = View.GONE
+
+            binding.rvReservations.visibility = View.VISIBLE
 
             Toast.makeText(
                 requireContext(),
@@ -147,6 +157,11 @@ class ReservationFragment : Fragment() {
             ).getToken()
 
         if (token != null) {
+
+            binding.shimmerLayout.visibility = View.VISIBLE
+            binding.shimmerLayout.startShimmer()
+
+            binding.rvReservations.visibility = View.GONE
 
             viewModel.getMyReservations(
                 "Bearer $token"

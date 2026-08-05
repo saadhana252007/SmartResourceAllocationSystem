@@ -148,6 +148,11 @@ class ResourceFragment : Fragment() {
         binding.tabMeeting.isSelected =
             true
 
+        binding.shimmerLayout.visibility = View.VISIBLE
+        binding.shimmerLayout.startShimmer()
+
+        binding.rvResources.visibility = View.GONE
+
         viewModel.getResourcesByCategory(
             "Meeting Room"
         )
@@ -168,6 +173,11 @@ class ResourceFragment : Fragment() {
             viewLifecycleOwner
         ) {
 
+            binding.shimmerLayout.stopShimmer()
+            binding.shimmerLayout.visibility = View.GONE
+
+            binding.rvResources.visibility = View.VISIBLE
+
             adapter.updateList(it)
 
         }
@@ -175,6 +185,10 @@ class ResourceFragment : Fragment() {
         viewModel.errorMessage.observe(
             viewLifecycleOwner
         ) {
+
+            binding.shimmerLayout.stopShimmer()
+            binding.shimmerLayout.visibility = View.GONE
+            binding.rvResources.visibility = View.VISIBLE
 
             Toast.makeText(
                 requireContext(),
@@ -204,6 +218,10 @@ class ResourceFragment : Fragment() {
 
             binding.tabMeeting.isSelected = true
 
+            binding.shimmerLayout.visibility = View.VISIBLE
+            binding.shimmerLayout.startShimmer()
+            binding.rvResources.visibility = View.GONE
+
 
             viewModel.getResourcesByCategory(
                 "Meeting Room"
@@ -216,7 +234,9 @@ class ResourceFragment : Fragment() {
 
             binding.tabLab.isSelected = true
 
-
+            binding.shimmerLayout.visibility = View.VISIBLE
+            binding.shimmerLayout.startShimmer()
+            binding.rvResources.visibility = View.GONE
 
             viewModel.getResourcesByCategory(
                 "Laboratory Equipment"
@@ -230,7 +250,9 @@ class ResourceFragment : Fragment() {
 
             binding.tabProjector.isSelected = true
 
-
+            binding.shimmerLayout.visibility = View.VISIBLE
+            binding.shimmerLayout.startShimmer()
+            binding.rvResources.visibility = View.GONE
             viewModel.getResourcesByCategory(
                 "Projector"
             )
@@ -242,6 +264,10 @@ class ResourceFragment : Fragment() {
             resetTabs()
 
             binding.tabSports.isSelected = true
+
+            binding.shimmerLayout.visibility = View.VISIBLE
+            binding.shimmerLayout.startShimmer()
+            binding.rvResources.visibility = View.GONE
 
 
             viewModel.getResourcesByCategory(
@@ -255,6 +281,10 @@ class ResourceFragment : Fragment() {
             resetTabs()
 
             binding.tabStudy.isSelected = true
+
+            binding.shimmerLayout.visibility = View.VISIBLE
+            binding.shimmerLayout.startShimmer()
+            binding.rvResources.visibility = View.GONE
 
 
             viewModel.getResourcesByCategory(

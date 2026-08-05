@@ -67,7 +67,14 @@ class ReservationsFragment :
             return
         }
 
-        viewModel.getReservationsForMyResources("Bearer $token")
+        binding.shimmerLayout.visibility = View.VISIBLE
+        binding.shimmerLayout.startShimmer()
+
+        binding.rvReservations.visibility = View.GONE
+
+        viewModel.getReservationsForMyResources(
+            "Bearer $token"
+        )
 
     }
 
@@ -105,6 +112,11 @@ class ReservationsFragment :
 
         viewModel.reservations.observe(viewLifecycleOwner) {
 
+            binding.shimmerLayout.stopShimmer()
+            binding.shimmerLayout.visibility = View.GONE
+
+            binding.rvReservations.visibility = View.VISIBLE
+
             allReservations = it
 
             displayedReservations = it
@@ -117,6 +129,11 @@ class ReservationsFragment :
         }
 
         viewModel.errorMessage.observe(viewLifecycleOwner) {
+
+            binding.shimmerLayout.stopShimmer()
+            binding.shimmerLayout.visibility = View.GONE
+
+            binding.rvReservations.visibility = View.VISIBLE
 
             Toast.makeText(
                 requireContext(),
@@ -303,6 +320,11 @@ class ReservationsFragment :
             SharedPrefManager(requireContext()).getToken()
 
         if (token != null) {
+
+            binding.shimmerLayout.visibility = View.VISIBLE
+            binding.shimmerLayout.startShimmer()
+
+            binding.rvReservations.visibility = View.GONE
 
             viewModel.getReservationsForMyResources(
                 "Bearer $token"

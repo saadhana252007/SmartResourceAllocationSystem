@@ -44,7 +44,12 @@ class ResourcesFragment : Fragment(R.layout.admin_fragment_resource) {
                 requireContext()
             ).getToken()
 
-        if(token!=null){
+        if (token != null) {
+
+            binding.shimmerLayout.visibility = View.VISIBLE
+            binding.shimmerLayout.startShimmer()
+
+            binding.rvResources.visibility = View.GONE
 
             viewModel.getMyResources(
                 "Bearer $token"
@@ -96,6 +101,11 @@ class ResourcesFragment : Fragment(R.layout.admin_fragment_resource) {
 
         viewModel.resources.observe(viewLifecycleOwner) { list ->
 
+            binding.shimmerLayout.stopShimmer()
+            binding.shimmerLayout.visibility = View.GONE
+
+            binding.rvResources.visibility = View.VISIBLE
+
             allResources = list
 
             adapter.updateList(list)
@@ -106,6 +116,11 @@ class ResourcesFragment : Fragment(R.layout.admin_fragment_resource) {
         }
 
         viewModel.errorMessage.observe(viewLifecycleOwner) {
+
+            binding.shimmerLayout.stopShimmer()
+            binding.shimmerLayout.visibility = View.GONE
+
+            binding.rvResources.visibility = View.VISIBLE
 
             Toast.makeText(
                 requireContext(),
@@ -302,6 +317,11 @@ class ResourcesFragment : Fragment(R.layout.admin_fragment_resource) {
             ).getToken()
 
         if (token != null) {
+
+            binding.shimmerLayout.visibility = View.VISIBLE
+            binding.shimmerLayout.startShimmer()
+
+            binding.rvResources.visibility = View.GONE
 
             viewModel.getMyResources(
                 "Bearer $token"
